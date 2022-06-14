@@ -1,0 +1,64 @@
+import os
+from multiprocessing import Process
+import streamlit as st
+
+class TensorboardSupervisor:
+    def __init__(self, log_dir, port):
+        self.server = TensorboardServer(log_dir, port)
+        self.server.start()
+        self.port = str(port)
+
+    def kill(self):
+        if self.server.is_alive():
+            os.system('kill -9 $(lsof -t -i tcp:' + self.port + ')')
+            self.server.terminate()
+            self.server.join()
+
+class TensorboardServer(Process):
+    def __init__(self, log_dir, port):
+        super().__init__()
+        self.log_dir = str(log_dir)
+        self.port = str(port)
+        self.daemon = True
+
+    def run(self):
+        os.system('tensorboard --logdir=tensorboard_runs --port=' + str(self.port))
+
+
+if 'config' not in st.session_state or st.session_state.config is None:
+    st.info('You first have to load a dataset and configure the neural network architecture')
+
+else:    
+    hyperopt_methods = ['Hyperband']
+    if 'hyperopt_method_index' not in st.session_state:
+        st.session_state.hyperopt_method_index = 0
+    if 'max_budget' not in st.session_state:
+        st.session_state.max_budget = 81 
+    if 'eta' not in st.session_state:
+        st.session_state.eta = 3
+    if 'hyperband_selected' not in st.session_state:
+        st.session_state.hyperband_selected = False
+
+    st.write('## Hyperparameter Optimization')
+    st.session_state.hyperopt_method_index = st.selectbox(
+        'Hyperparameter Optimization method: ',
+        range(len(hyperopt_methods)),
+        format_func=lambda x: hyperopt_methods[x],
+        # index=st.session_state.hyperopt_method_index,
+        # on_change=
+    )
+    hyperopt_method = hyperopt_methods[st.session_state.hyperopt_method_index]
+
+    if hyperopt_method == 'Ranrdom Search':
+        budget = st.number_input('Budget (used only with Random search)', value=1)
+    elif hyperopt_method == 'Hyperband':
+        with st.form('hyperband_form', clear_on_submit=False):
+            st.session_state.max_budget = st.number_input('Insert a number', min_value=0, max_value=1000, value=st.session_state.max_budget, step=1)
+            st.session_state.eta = st.number_input('Insert a number', min_value=0, max_value=10, value=st.session_state.eta, step=1)
+            hyperband_form_submitted = st.form_submit_button('Save Hyperband parameters')
+        if hyperband_form_submitted:
+            st.success('Hyperband parameters saved: (max_budget: '+str(st.session_state.max_budget)+', eta: '+str(st.session_state.eta)+')')
+            st.session_state.hyperband_selected = True
+    
+    else:
+        pass
