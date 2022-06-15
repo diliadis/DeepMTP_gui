@@ -19,7 +19,9 @@ This is the official repository for the gui application of DeepMTP, a deep learn
 The application uses DeepMTP in the backend, so the use of a GPU is strongly recommended. The installation can be done in the following ways:
 
 ## Installing on Google Colab
-
+```bash
+will be added soon...
+```
 
 ## Installing from Source
 
@@ -35,3 +37,6 @@ conda activate deepMTP_streamlit_env
 # if your dataset is unable to load because of the size, you can increase the server.maxUploadSize accordingly
 streamlit run main.py --server.port port_number --server.maxUploadSize=2028
 ```
+
+# What is DeepMTP?
+For a detailed explanation of DeepMTP you can visit the official [GitHub repository](https://github.com/diliadis/DeepMTP). The repository explains the theory behind multi-target prediction, the neural network architecture that DeepMTP utilizes, as well as various demo notebooks that show how to use the framework. The DeepMTP_gui repository can be seen as an attempt to offer the basic functionality of DeepMTP to users that don't have programming experience but are interested in machine learning and the area of MTP. 
