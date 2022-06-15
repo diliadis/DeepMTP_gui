@@ -51,7 +51,7 @@ The current version of this application utilizes a recently added streamlit feat
 The main page contains the basic information about multi-target prediction, the different settings and validation strategies that are possible.
 
 ## DeepMTP architecture
-https://imgur.com/8LUTL6L
+
 <p align="center">
   <img src="https://imgur.com/8LUTL6L.gif" alt="animated" />
 </p>
