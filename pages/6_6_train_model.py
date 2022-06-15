@@ -19,7 +19,8 @@ from contextlib import redirect_stdout
 if 'config' not in st.session_state or st.session_state.config is None:
     st.info('You first have to load a dataset and configure the neural network architecture')
 
-else:               
+else:    
+    st.info('Everything seems to be correctly defined. You can click the button below to start training')           
     streamlit_to_deepMTP_metrics_map = {
         'accuracy': 'accuracy',
         'recall': 'recall',
@@ -35,9 +36,10 @@ else:
     }
 
     # button to start training
-    st.session_state.start_experiment_button_pressed = st.button('Start Experiments')
+    st.session_state.start_experiment_button_pressed = st.button('Start training!!!')
 
     if st.session_state.start_experiment_button_pressed:
+
         st.warning('The training process has just started. DO NOT click anything in the application, otherwise all progress will be lost!!!')
         # generate the configuration file
         cond, cond2, cond3, cond4 = None, None, None, None
@@ -140,7 +142,6 @@ else:
         
         # check if after iterating over the hyperparameters, the user decided to run a singe architecture or we can run Hyperband
         if len(cs.get_hyperparameter_names()) == 0:
-            st.write(st.session_state.config['metrics'])
             config = generate_config(    
                 instance_branch_input_dim = st.session_state.data_info['instance_branch_input_dim'],
                 target_branch_input_dim = st.session_state.data_info['target_branch_input_dim'],
@@ -153,7 +154,7 @@ else:
                 dropout_rate = st.session_state.config['dropout_rate'],
                 momentum = 0.9,
                 weighted_loss = False,
-                compute_mode = 'cuda:6',
+                compute_mode = st.session_state['selected_gpu'] if st.session_state['selected_gpu']=='cpu' else 'cuda:'+st.session_state['selected_gpu'],
                 train_batchsize = 512,
                 val_batchsize = 512,
                 num_epochs = st.session_state.config['epochs'],
@@ -214,6 +215,10 @@ else:
             #         validation_results = model.train(st.session_state.train, st.session_state.val, st.session_state.test)
             # st.success('Training completed!')
             # st.write(output)
+
+            st.success('Training has just started with the following config: ')
+            st.write(config)
+
 
             model = DeepMTP(config)
             with st.spinner('training...'):
