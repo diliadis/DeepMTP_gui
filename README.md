@@ -45,4 +45,36 @@ For a detailed explanation of DeepMTP you can visit the official [GitHub reposit
 The current version of this application utilizes a recently added streamlit feature, multi-page support. This enables a clearer separation of the different steps needed to successfully train a neural network. In the following sections we will present the different pages that are available in the UI, and show a typical workflow.
 
 ## main
-![](https://imgur.com/oIzY0nA.gif)
+<p align="center">
+  <img src="https://imgur.com/oIzY0nA.gif" alt="animated" />
+</p>
+The main page contains the basic information about multi-target prediction, the different settings and validation strategies that are possible.
+
+## DeepMTP architecture
+https://imgur.com/8LUTL6L
+<p align="center">
+  <img src="https://imgur.com/8LUTL6L.gif" alt="animated" />
+</p>
+The "DeepMTP architecture page" contains basic information about the neural network architecture DeepMTP uses
+
+
+
+## load dataset
+
+<p align="center">
+  <img src="https://imgur.com/ppM4LxG.gif" alt="animated" />
+</p>
+The "load dataset" page is the first step in the typical workflow of the app. This is the input point for the user, as they can either use one of the built-in datasets offered by the DeepMTP package, or upload their own.
+
+## Use a build-in dataset
+When this option is selected, the UI shows two select boxes. The first one displays the MTP problem settings and the second the specific datasets that are available, given a MTP problem setting. The current version of the app supports the following datasets:
+|  Function  | Description |
+| :--- | :--- |
+| `multi-label classification` | the user can load the multi-label classification datasets available in the [MULAN repository](http://mulan.sourceforge.net/datasets-mlc.html). |
+| `multivariate regression` | the user can load the multivariate regression datasets available in the [MULAN repository](http://mulan.sourceforge.net/datasets-mtr.html). |
+| `multi-task learning` | the user can load the multi-task learning dataset `dog`, a crowdsourcing dataset first introduced in [Liu et a](https://ieeexplore.ieee.org/document/8440116). More specifically, the dataset contains 800 images of dogs who have been partially labelled by 52 annotators with one of 5 possible breeds. To modify this multi-class problem to a binary problem, we modify the task so that the prediction involves the correct or incorrect labelling by the annotator. In a future version of the software another dataset of the same type will be added.|
+| `matrix completion` | the user can load the matrix completion dataset `MovieLens 100K`, a movie rating prediction dataset available by the the [GroupLens lab](https://grouplens.org/datasets/movielens/) that contains 100k ratings from 1000 users on 1700 movies. In a future version of the software larger versions of the movielens dataset will be added  |
+| `dyadic prediction` | the user can load dyadic prediction datasets available [here](https://people.montefiore.uliege.be/schrynemackers/datasets). |
+
+## I will upload my own dataset
+to be continued...
