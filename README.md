@@ -40,3 +40,9 @@ streamlit run main.py --server.port port_number --server.maxUploadSize=2028
 
 # What is DeepMTP?
 For a detailed explanation of DeepMTP you can visit the official [GitHub repository](https://github.com/diliadis/DeepMTP). The repository explains the theory behind multi-target prediction, the neural network architecture that DeepMTP utilizes, as well as various demo notebooks that show how to use the framework. The DeepMTP_gui repository can be seen as an attempt to offer the basic functionality of DeepMTP to users that don't have programming experience but are interested in machine learning and the area of MTP. 
+
+# Using DeepMTP_gui?
+The current version of this application utilizes a recently added streamlit feature, multi-page support. This enables a clearer separation of the different steps needed to successfully train a neural network. In the following sections we will present the different pages that are available in the UI, and show a typical workflow.
+
+## main
+![](https://imgur.com/oIzY0nA.gif)
