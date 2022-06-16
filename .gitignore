@@ -5,6 +5,7 @@
 /results
 /wandb
 /data
+/hyperband
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
