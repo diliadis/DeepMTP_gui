@@ -7,6 +7,8 @@ import ConfigSpace.hyperparameters as CSH
 
 from DeepMTP.main_streamlit import DeepMTP
 from DeepMTP.utils.utils import generate_config
+from DeepMTP.simple_hyperband_streamlit import BaseWorker
+from DeepMTP.simple_hyperband_streamlit import HyperBand
 from PIL import Image
 
 from utils import Capturing
@@ -49,99 +51,99 @@ else:
         if isinstance(st.session_state.learning_rate, tuple):
             if st.session_state.learning_rate[0] != st.session_state.learning_rate[1]:
                 learning_rate = CSH.UniformFloatHyperparameter('learning_rate', lower=st.session_state.learning_rate[0], upper=st.session_state.learning_rate[1], log=True)
-                cs.add_hyperparameters([learning_rate])
             else:
-                st.session_state.config['learning_rate'] = st.session_state.learning_rate[0]
+                learning_rate = CSH.Constant('learning_rate', value=st.session_state.learning_rate[0]) 
         else:
-            st.session_state.config['learning_rate'] = st.session_state.learning_rate
+            learning_rate = CSH.Constant('learning_rate', value=st.session_state.learning_rate)
 
         # dropout rate
         if isinstance(st.session_state.dropout_rate, tuple):
             if st.session_state.dropout_rate[0] != st.session_state.dropout_rate[1]:
                 dropout_rate = CSH.UniformFloatHyperparameter('dropout_rate', lower=st.session_state.dropout_rate[0], upper=st.session_state.dropout_rate[1], log=False)
-                cs.add_hyperparameters([dropout_rate])
             else:
-                st.session_state.config['dropout_rate'] = st.session_state.dropout_rate[0]
+                dropout_rate = CSH.Constant('dropout_rate', value=st.session_state.dropout_rate[0])
         else:
-            st.session_state.config['dropout_rate'] = st.session_state.dropout_rate
+            dropout_rate = CSH.Constant('dropout_rate', value=st.session_state.dropout_rate)
 
         # batch normalization
         if isinstance(st.session_state.batch_norm, tuple):
             if st.session_state.batch_norm[0] != st.session_state.batch_norm[1]:
                 batch_norm = CSH.CategoricalHyperparameter("batch_norm", st.session_state.batch_norm)
-                cs.add_hyperparameters([batch_norm])
             else:
-                st.session_state.config['batch_norm'] = st.session_state.batch_norm[0]
+                batch_norm = CSH.Constant('batch_norm', value=st.session_state.batch_norm[0])
         else:
-            st.session_state.config['batch_norm'] = st.session_state.batch_norm
+            batch_norm = CSH.Constant('batch_norm', value=st.session_state.batch_norm)
         
         # number of nodes in every layer of the instance branch
         if isinstance(st.session_state.instance_branch_nodes_per_layer, tuple):
             if st.session_state.instance_branch_nodes_per_layer[0] != st.session_state.instance_branch_nodes_per_layer[1]:
                 instance_branch_nodes_per_layer = CSH.UniformIntegerHyperparameter('instance_branch_nodes_per_layer', lower=st.session_state.instance_branch_nodes_per_layer[0], upper=st.session_state.instance_branch_nodes_per_layer[1], log=False)
-                cs.add_hyperparameters([instance_branch_nodes_per_layer])
             else:
-                st.session_state.config['instance_branch_nodes_per_layer'] = st.session_state.instance_branch_nodes_per_layer[0]
+                instance_branch_nodes_per_layer = CSH.Constant('instance_branch_nodes_per_layer', value=st.session_state.instance_branch_nodes_per_layer[0])
         else:
-            st.session_state.config['instance_branch_nodes_per_layer'] = st.session_state.instance_branch_nodes_per_layer
+            instance_branch_nodes_per_layer = CSH.Constant('instance_branch_nodes_per_layer', value=st.session_state.instance_branch_nodes_per_layer)
 
         # number of layers in the instance branch
         if isinstance(st.session_state.instance_branch_layers, tuple):
             if st.session_state.instance_branch_layers[0] != st.session_state.instance_branch_layers[1]:
                 instance_branch_layers = CSH.UniformIntegerHyperparameter('instance_branch_layers', lower=st.session_state.instance_branch_layers[0], upper=st.session_state.instance_branch_layers[1], default_value=1, log=False)
-                cs.add_hyperparameters([instance_branch_layers])
             else:
-                st.session_state.config['instance_branch_layers'] = st.session_state.instance_branch_layers[0]
+                instance_branch_layers = CSH.Constant('instance_branch_layers', value=st.session_state.instance_branch_layers[0])
         else:
-            st.session_state.config['instance_branch_layers'] = st.session_state.instance_branch_layers
+            instance_branch_layers = CSH.Constant('instance_branch_layers', value=st.session_state.instance_branch_layers)
 
         # number of nodes in every layer of the target branch
         if isinstance(st.session_state.target_branch_nodes_per_layer, tuple):
             if st.session_state.target_branch_nodes_per_layer[0] != st.session_state.target_branch_nodes_per_layer[1]:
                 target_branch_nodes_per_layer = CSH.UniformIntegerHyperparameter('target_branch_nodes_per_layer', lower=st.session_state.target_branch_nodes_per_layer[0], upper=st.session_state.target_branch_nodes_per_layer[1], log=False)
-                cs.add_hyperparameters([target_branch_nodes_per_layer])
             else:
-                st.session_state.config['target_branch_nodes_per_layer'] = st.session_state.target_branch_nodes_per_layer[0]
+                target_branch_nodes_per_layer = CSH.Constant('target_branch_nodes_per_layer', value=st.session_state.target_branch_nodes_per_layer[0])
         else:
-            st.session_state.config['target_branch_nodes_per_layer'] = st.session_state.target_branch_nodes_per_layer
+            target_branch_nodes_per_layer = CSH.Constant('target_branch_nodes_per_layer', value=st.session_state.target_branch_nodes_per_layer)
 
         # number of layers in the target branch
         if isinstance(st.session_state.target_branch_layers, tuple):
             if st.session_state.target_branch_layers[0] != st.session_state.target_branch_layers[1]:
                 target_branch_layers = CSH.UniformIntegerHyperparameter('target_branch_layers', lower=st.session_state.target_branch_layers[0], upper=st.session_state.target_branch_layers[1], default_value=1, log=False)
-                cs.add_hyperparameters([target_branch_layers])
             else:
-                st.session_state.config['target_branch_layers'] = st.session_state.target_branch_layers[0]
+                target_branch_layers = CSH.Constant('target_branch_layers', value=st.session_state.target_branch_layers[0])
         else:
-            st.session_state.config['target_branch_layers'] = st.session_state.target_branch_layers
+            target_branch_layers = CSH.Constant('target_branch_layers', value=st.session_state.target_branch_layers)
 
         # size of the embedding layer for the instance and target branches
         if isinstance(st.session_state.embedding_size, tuple):
             if st.session_state.embedding_size[0] != st.session_state.embedding_size[1]:
                 embedding_size = CSH.UniformIntegerHyperparameter('embedding_size', lower=st.session_state.embedding_size[0], upper=st.session_state.embedding_size[1], log=False)
-                cs.add_hyperparameters([embedding_size])
             else:
-                st.session_state.config['embedding_size'] = st.session_state.embedding_size[0]
+                embedding_size = CSH.Constant('embedding_size', value=st.session_state.embedding_size[0])
         else:
-            st.session_state.config['embedding_size'] = st.session_state.embedding_size
+            embedding_size = CSH.Constant('embedding_size', value=st.session_state.embedding_size)
+
+        cs.add_hyperparameters([learning_rate, dropout_rate, batch_norm, instance_branch_nodes_per_layer, instance_branch_layers, target_branch_nodes_per_layer, target_branch_layers, embedding_size])
         
+        # st.write('learning_rate: '+str(st.session_state.config['learning_rate']))
+        # st.write('dropout_rate: '+str(st.session_state.config['dropout_rate']))
+        # st.write('batch_norm: '+str(st.session_state.config['batch_norm']))
+        # st.write('instance_branch_nodes_per_layer: '+str(st.session_state.config['instance_branch_nodes_per_layer']))
+        # st.write('instance_branch_layers: '+str(st.session_state.config['instance_branch_layers']))
+        # st.write('target_branch_nodes_per_layer: '+str(st.session_state.config['target_branch_nodes_per_layer']))
+        # st.write('target_branch_layers: '+str(st.session_state.config['target_branch_layers']))
+        # st.write('embedding_size: '+str(st.session_state.config['embedding_size']))
 
-        if 'instance_branch_layers' in cs.get_hyperparameter_names() and 'dropout_rate' in cs.get_hyperparameter_names():
+        if not isinstance(instance_branch_layers, CSH.Constant):
             cond = CS.GreaterThanCondition(dropout_rate, instance_branch_layers, 1)
-        if 'target_branch_layers' in cs.get_hyperparameter_names() and 'dropout_rate' in cs.get_hyperparameter_names():
-            cond2 = CS.GreaterThanCondition(dropout_rate, target_branch_layers, 1)
-        if 'instance_branch_layers' in cs.get_hyperparameter_names() and 'batch_norm' in cs.get_hyperparameter_names():
             cond3 = CS.GreaterThanCondition(batch_norm, instance_branch_layers, 1)
-        if 'target_branch_layers' in cs.get_hyperparameter_names() and 'batch_norm' in cs.get_hyperparameter_names():
+        if not isinstance(target_branch_layers, CSH.Constant):
+            cond2 = CS.GreaterThanCondition(dropout_rate, target_branch_layers, 1)
             cond4 = CS.GreaterThanCondition(batch_norm, target_branch_layers, 1)
-
-        if cond is not None and cond3 is not None:
+        if cond and cond2:
             cs.add_condition(CS.OrConjunction(cond, cond2))
+        if cond3 and cond4:
             cs.add_condition(CS.OrConjunction(cond3, cond4))
-
         
         # check if after iterating over the hyperparameters, the user decided to run a singe architecture or we can run Hyperband
-        if len(cs.get_hyperparameter_names()) == 0:
+        if len(cs.get_hyperparameter_names()) == 0: 
+            st.info('Training with a singe configuration.')
             config = generate_config(    
                 instance_branch_input_dim = st.session_state.data_info['instance_branch_input_dim'],
                 target_branch_input_dim = st.session_state.data_info['target_branch_input_dim'],
@@ -217,10 +219,69 @@ else:
             # st.write(output)
 
             st.success('Training has just started with the following config: ')
-            st.write(config)
-
-
+            # st.write(config)
             model = DeepMTP(config)
             with st.spinner('training...'):
                 validation_results = model.train(st.session_state.train, st.session_state.val, st.session_state.test)
             st.success('Training completed!')
+        
+        else: # hyperband will be used
+
+            config = {    
+                'hpo_results_path': './hyperband/',
+
+                'instance_branch_input_dim': st.session_state.data_info['instance_branch_input_dim'],
+                'target_branch_input_dim': st.session_state.data_info['target_branch_input_dim'],
+                'validation_setting': st.session_state.data_info['detected_validation_setting'],
+                'enable_dot_product_version': True,
+                'problem_mode': st.session_state.data_info['detected_problem_mode'],
+
+                'compute_mode': st.session_state['selected_gpu'] if st.session_state['selected_gpu']=='cpu' else 'cuda:'+st.session_state['selected_gpu'],
+                'train_batchsize': 512,
+                'val_batchsize': 512,
+                'num_epochs': st.session_state.config['epochs'],
+                'num_workers': 8,
+
+                'metrics': [streamlit_to_deepMTP_metrics_map[streamlit_metric] for streamlit_metric in st.session_state.config['metrics']],
+                'metrics_average': st.session_state.config['metrics_average'],
+                'patience': 10,
+
+                'evaluate_train': True,
+                'evaluate_val': True,
+
+                'verbose': True,
+                'results_verbose': False,
+                'use_early_stopping': True,
+                'use_tensorboard_logger': True,
+                'wandb_project_name': None if st.session_state['use_wandb'] is None else st.session_state['use_wandb']['project'],
+                'wandb_project_entity': None if st.session_state['use_wandb'] is None else st.session_state['use_wandb']['entity'],
+                'metric_to_optimize_early_stopping': 'loss',
+                'metric_to_optimize_best_epoch_selection': 'loss',
+
+                'instance_branch_architecture': 'MLP',
+
+                'target_branch_architecture': 'MLP',
+
+                'save_model': True,
+
+                'eval_every_n_epochs': 10,
+
+                'running_hyperband': True,
+
+                'additional_info': {'eta': st.session_state.eta, 'max_budget': st.session_state.max_budget}
+            }
+
+            worker = BaseWorker(
+                st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss'
+            )
+
+            hb = HyperBand(
+                base_worker=worker,
+                configspace=cs,
+                eta=st.session_state.eta,
+                max_budget=st.session_state.max_budget,
+                direction="min",
+            )
+
+            hb.run_optimizer()
+            st.success('Hyperband completed!')
