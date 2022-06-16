@@ -29,7 +29,7 @@ if 'config' not in st.session_state or st.session_state.config is None:
     st.info('You first have to load a dataset and configure the neural network architecture')
 
 else:    
-    hyperopt_methods = ['Hyperband']
+    hyperopt_methods = ['Hyperband', 'Random Search']
     if 'hyperopt_method_index' not in st.session_state:
         st.session_state.hyperopt_method_index = 0
     if 'max_budget' not in st.session_state:
@@ -38,6 +38,10 @@ else:
         st.session_state.eta = 3
     if 'hyperband_selected' not in st.session_state:
         st.session_state.hyperband_selected = False
+    if 'random_search_budget' not in st.session_state:
+        st.session_state.random_search_budget = False
+    if 'random_search_selected' not in st.session_state:
+        st.session_state.random_search_selected = False
 
     st.write('## Hyperparameter Optimization')
     st.session_state.hyperopt_method_index = st.selectbox(
@@ -50,7 +54,13 @@ else:
     hyperopt_method = hyperopt_methods[st.session_state.hyperopt_method_index]
 
     if hyperopt_method == 'Ranrdom Search':
-        budget = st.number_input('Budget (used only with Random search)', value=1)
+        with st.form('random_search_form', clear_on_submit=False):
+            st.session_state.random_search_budget = st.number_input('Budget (number of different randomly sampled configurations that will be tested)', value=1)
+            random_search_form_submitted = st.form_submit_button('Save parameters')
+        if random_search_form_submitted:
+            st.success('Random search parameters saved: (budget: '+str(st.session_state.random_search_budget)+')')
+            st.session_state.random_search_selected = True
+
     elif hyperopt_method == 'Hyperband':
         with st.form('hyperband_form', clear_on_submit=False):
             st.session_state.max_budget = st.number_input('Insert a number', min_value=1, max_value=1000, value=st.session_state.max_budget, step=1)
