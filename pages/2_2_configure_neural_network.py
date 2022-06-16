@@ -229,3 +229,6 @@ else:
         st.info('Nothing yet')
     else:
         st.write(st.session_state.config)
+
+        if st.button('Reset hyperparameters'):
+            st.session_state.config = None
