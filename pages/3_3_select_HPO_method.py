@@ -53,8 +53,8 @@ else:
         budget = st.number_input('Budget (used only with Random search)', value=1)
     elif hyperopt_method == 'Hyperband':
         with st.form('hyperband_form', clear_on_submit=False):
-            st.session_state.max_budget = st.number_input('Insert a number', min_value=0, max_value=1000, value=st.session_state.max_budget, step=1)
-            st.session_state.eta = st.number_input('Insert a number', min_value=0, max_value=10, value=st.session_state.eta, step=1)
+            st.session_state.max_budget = st.number_input('Insert a number', min_value=1, max_value=1000, value=st.session_state.max_budget, step=1)
+            st.session_state.eta = st.number_input('Insert a number', min_value=1, max_value=10, value=st.session_state.eta, step=1)
             hyperband_form_submitted = st.form_submit_button('Save Hyperband parameters')
         if hyperband_form_submitted:
             st.success('Hyperband parameters saved: (max_budget: '+str(st.session_state.max_budget)+', eta: '+str(st.session_state.eta)+')')
