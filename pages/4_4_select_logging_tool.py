@@ -14,7 +14,6 @@ else:
     if 'use_wandb' not in st.session_state:
         st.session_state.use_wandb = None
 
-    st.write('---')
     st.session_state.logging_option_index = st.selectbox(
         'Logging_platform: ',
         range(len(logging_options)),
@@ -132,6 +131,7 @@ else:
                             'project': wandb_project,
                             'api_key': wandb_API_key,
                         }
+                        st.info('A test experiment was logged as a test to check if the credentials are valid. The experiment was automatically deleted but may still be visible in Weights & Biases for a few more minutes')
                 except ValueError:
                     st.error(
                         'API key must be 40 characters long, yours was '
