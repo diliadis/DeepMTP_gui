@@ -88,7 +88,7 @@ def MTP_section():
     clearConsole()
     st.write(MTP_intro)
 
-    val_settings_image = Image.open("images/validation_settings.png")
+    val_settings_image = Image.open("images/validation_settings_transparent.png")
     st.image(
         val_settings_image,
         caption="The four validation settings in MTP",
@@ -100,7 +100,15 @@ if 'start_experiment_button_pressed' not in st.session_state:
     st.session_state.start_experiment_button_pressed = False
 st.session_state.start_experiment_button_pressed = False
 
-st.set_page_config(page_title='DeepMTP', layout='centered')
+st.set_page_config(
+    page_title='DeepMTP', 
+    layout='centered',
+    menu_items={
+        'Get Help': 'https://www.extremelycoolapp.com/help',
+        'Report a bug': "https://www.extremelycoolapp.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    }    
+)
 
 st.sidebar.image('images/logo_transparent.png', use_column_width=True)
 
