@@ -40,6 +40,7 @@ else:
     # st.button('Refresh snapshot')
     # selected_gpu = st.radio('Select a GPU:', get_gpu_status(deviceIDs))
     selected_gpu_text = st.selectbox('Select a GPU:', get_gpu_status(deviceIDs)+['cpu'])
-    # st.info(selected_gpu)
-    st.session_state.selected_gpu = selected_gpu_text.split(')')[0]
-    st.success(selected_gpu_text+' will be used for training')
+
+    if st.button('Save GPU selection'):
+        st.session_state.selected_gpu = selected_gpu_text.split(')')[0]
+        st.success(selected_gpu_text+' will be used for training')
