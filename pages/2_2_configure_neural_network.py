@@ -3,9 +3,8 @@ import streamlit as st
 def get_range(minmax_val, full_range):    
     return [minmax_val[0]] if minmax_val[0] == minmax_val[1] else full_range[full_range.index(minmax_val[0]):full_range.index(minmax_val[1])+1]
 
-if st.session_state.data is None:
+if 'data' not in st.session_state or st.session_state.data is None:
     st.info('You first have to load a dataset in the previous page')
-
 else:
     learning_rate_range = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1]
     dropout_rate_range = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
@@ -226,7 +225,7 @@ else:
 
     st.header('Selected Hyperparameters')
     if st.session_state.config is None:
-        st.info('Nothing yet')
+        st.info('Select the ranges for the hyperparameters above and click "Save architecture choices" to save them.')
     else:
         st.write(st.session_state.config)
 
