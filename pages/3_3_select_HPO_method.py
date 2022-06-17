@@ -63,6 +63,8 @@ else:
 
     elif hyperopt_method == 'Hyperband':
         with st.form('hyperband_form', clear_on_submit=False):
+            link = 'For a more detailed explanation of how the Hyperband algorithm works click [here](https://share.streamlit.io/diliadis/hyperbandcalculator/main/main.py)'
+            st.markdown(link, unsafe_allow_html=True)
             st.session_state.max_budget = st.number_input('Insert a number', min_value=1, max_value=1000, value=st.session_state.max_budget, step=1)
             st.session_state.eta = st.number_input('Insert a number', min_value=1, max_value=10, value=st.session_state.eta, step=1)
             hyperband_form_submitted = st.form_submit_button('Save Hyperband parameters')
