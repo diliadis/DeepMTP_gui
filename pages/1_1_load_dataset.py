@@ -46,6 +46,10 @@ datasets_per_mtp_problem_setting = {
 mtp_problem_setting_names = list(datasets_per_mtp_problem_setting.keys())
 
 # initializing session_state variables
+if 'built_in_dataset_loaded' not in st.session_state:
+    st.session_state.built_in_dataset_loaded = False
+if 'custom_dataset_loaded' not in st.session_state:
+    st.session_state.custom_dataset_loaded = False    
 if 'dataset_mode_option_index' not in st.session_state:
     st.session_state.dataset_mode_option_index = 0
 if 'mtp_problem_setting_option_index' not in st.session_state:
@@ -134,20 +138,21 @@ if dataset_mode_option == 'Use a build-in dataset':
         # translating the selected ids to the names of the MTP problem setting and the dataset
         selected_mtp_problem_setting_name = mtp_problem_setting_names[st.session_state.mtp_problem_setting_option_index]
         selected_dataset_name = datasets_per_mtp_problem_setting[selected_mtp_problem_setting_name][st.session_state.dataset_option_index]
-
-        # loading the dataset
-        with st.spinner('Loading...'):
-            st.info('Loading '+selected_dataset_name+' ('+selected_mtp_problem_setting_name+')')
-            with Capturing() as output:
-                st.session_state.data = load_dataset(selected_mtp_problem_setting_name, selected_dataset_name)
-            for out in output:
-                if out.startswith('info:'):
-                    st.info(out[len('info:'):])
-                elif out.startswith('error:'):
-                    st.error(out[len('error:'):])
-                elif out.startswith('warning:'):
-                    st.warning(out[len('warning:'):])
-            st.success('Done')
+        if st.button('Load dataset'):
+            # loading the dataset
+            with st.spinner('Loading...'):
+                st.info('Loading '+selected_dataset_name+' ('+selected_mtp_problem_setting_name+')')
+                with Capturing() as output:
+                    st.session_state.data = load_dataset(selected_mtp_problem_setting_name, selected_dataset_name)
+                for out in output:
+                    if out.startswith('info:'):
+                        st.info(out[len('info:'):])
+                    elif out.startswith('error:'):
+                        st.error(out[len('error:'):])
+                    elif out.startswith('warning:'):
+                        st.warning(out[len('warning:'):])
+                st.session_state.built_in_dataset_loaded = True
+                st.success('Done')
 
 else:
 
@@ -187,7 +192,7 @@ else:
             st.success('Done')
 
 
-    if st.session_state.y_train is not None or st.session_state.y_val is not None or st.session_state.y_test is not None:
+    if st.session_state.y_train is not None:
         st.write('---')
         st.header('Interaction data')
         st.subheader('Train interaction data')
@@ -232,24 +237,63 @@ else:
                 'X_target': st.session_state.X_val_target
             }
         }
+        st.session_state.custom_dataset_loaded = True
+
+if (dataset_mode_option == 'Use a build-in dataset' and st.session_state.built_in_dataset_loaded == True) or (dataset_mode_option == 'I will upload my own dataset' and st.session_state.custom_dataset_loaded == True):
 
 
-if st.session_state.data is not None:
-    st.header('Preprocess data')
-    with st.spinner('Processing...'):
-        with Capturing() as output:
-            st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev')
-        for out in output:
-            if out.startswith('info:'):
-                if 'Passed' in out:
-                    st.success(out[len('info:'):])
-                else:
-                    st.info(out[len('info:'):])
-            elif out.startswith('error:'):
-                st.error(out[len('error:'):])
-            elif out.startswith('warning:'):
-                st.warning(out[len('warning:'):])
-    st.success('Done')
-    st.write('---')
+    if st.session_state.data is not None:
+        if st.session_state.train is None and st.session_state.val is None and st.session_state.test is None:
+            st.header('Preprocess data')
+            with st.spinner('Processing...'):
+                with Capturing() as output:
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev')
+                for out in output:
+                    if out.startswith('info:'):
+                        if 'Passed' in out:
+                            st.success(out[len('info:'):])
+                        else:
+                            st.info(out[len('info:'):])
+                    elif out.startswith('error:'):
+                        st.error(out[len('error:'):])
+                    elif out.startswith('warning:'):
+                        st.warning(out[len('warning:'):])
+            st.success('Done')
+            st.write('---')
+            st.info('You can now head to the next page in order to configure the architecture of the neural network.')
+        else:
+            st.info('A dataset is alread loaded. You can now head to the next page in order to configure the architecture of the neural network.')
 
-    st.info('You can now head to the next page in order to configure the arhictreu of the neural network.')
+        if st.button('Reset dataset selection'):
+            st.session_state.built_in_dataset_loaded = False
+            st.session_state.custom_dataset_loaded = False    
+            st.session_state.dataset_mode_option_index = 0
+            st.session_state.mtp_problem_setting_option_index = 0
+            st.session_state.dataset_option_index = 0
+            st.session_state.data = None
+            st.session_state.train = None
+            st.session_state.val = None
+            st.session_state.test = None
+            st.session_state.data_info = None
+
+            st.session_state.y_train_file = None
+            st.session_state.y_val_file = None
+            st.session_state.y_test_file = None
+            st.session_state.X_train_instance_file = None
+            st.session_state.X_val_instance_file = None
+            st.session_state.X_test_instance_file = None
+            st.session_state.X_train_target_file = None
+            st.session_state.X_val_target_file = None
+            st.session_state.X_test_target_file = None
+
+            st.session_state.y_train = None
+            st.session_state.y_val = None
+            st.session_state.y_test = None
+            st.session_state.X_train_instance = None
+            st.session_state.X_val_instance = None
+            st.session_state.X_test_instance = None
+            st.session_state.X_train_target = None
+            st.session_state.X_val_target = None
+            st.session_state.X_test_target = None
+            st.experimental_rerun()
+
