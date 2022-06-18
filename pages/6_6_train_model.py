@@ -4,21 +4,15 @@ import streamlit as st
 import wandb
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-
 from DeepMTP.main_streamlit import DeepMTP
 from DeepMTP.utils.utils import generate_config
 from DeepMTP.simple_hyperband_streamlit import BaseWorker
 from DeepMTP.simple_hyperband_streamlit import HyperBand
 from PIL import Image
-
 from utils import Capturing
-
 from contextlib import redirect_stdout
 
-
-
-
-if 'config' not in st.session_state or st.session_state.config is None:
+if 'config' not in st.session_state or st.session_state.config is None or st.session_state.selected_gpu is None:
     st.info('You first have to load a dataset and configure the neural network architecture')
 
 else:    
@@ -283,5 +277,5 @@ else:
                 direction="min",
             )
 
-            hb.run_optimizer()
+            best_overall_config = hb.run_optimizer()
             st.success('Hyperband completed!')
