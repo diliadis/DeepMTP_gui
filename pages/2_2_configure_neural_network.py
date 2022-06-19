@@ -8,7 +8,7 @@ if 'data' not in st.session_state or st.session_state.data is None:
 else:
     learning_rate_range = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1]
     dropout_rate_range = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
-    batch_norm_range = [True, False]
+    batch_norm_range = ['True', 'False']
     instance_branch_nodes_per_layer_range = [8, 16, 32, 64, 128, 256, 512, 1024, 2048]
     instance_branch_layers_range = [1, 2, 3, 4, 5]
     target_branch_nodes_per_layer_range = [8, 16, 32, 64, 128, 256, 512, 1024, 2048]
@@ -76,7 +76,7 @@ else:
             st.session_state.batch_norm = st.select_slider(
                 'branch normalization', 
                 options=batch_norm_range, 
-                value=(True, False) 
+                value=('True', 'False') 
             )
 
             st.write('***')

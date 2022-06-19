@@ -53,7 +53,7 @@ else:
     )
     hyperopt_method = hyperopt_methods[st.session_state.hyperopt_method_index]
 
-    if hyperopt_method == 'Ranrdom Search':
+    if hyperopt_method == 'Random Search':
         with st.form('random_search_form', clear_on_submit=False):
             st.session_state.random_search_budget = st.number_input('Budget (number of different randomly sampled configurations that will be tested)', value=1)
             random_search_form_submitted = st.form_submit_button('Save parameters')

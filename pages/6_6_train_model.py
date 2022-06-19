@@ -5,7 +5,7 @@ import wandb
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from DeepMTP.main_streamlit import DeepMTP
-from DeepMTP.utils.utils import generate_config
+from DeepMTP.utils.utils import generate_config, get_default_dropout_rate, get_default_batch_norm
 from DeepMTP.simple_hyperband_streamlit import BaseWorker
 from DeepMTP.simple_hyperband_streamlit import HyperBand
 from PIL import Image
@@ -136,7 +136,14 @@ else:
             cs.add_condition(CS.OrConjunction(cond3, cond4))
         
         # check if after iterating over the hyperparameters, the user decided to run a singe architecture or we can run Hyperband
-        if len(cs.get_hyperparameter_names()) == 0: 
+        if False not in [isinstance(hyperparam, CSH.Constant) for hyperparam in cs.get_hyperparameters()]:
+            sampled_config = cs.sample_configuration()
+            
+            if 'batch_norm' not in sampled_config:
+                batch_norm = get_default_batch_norm()
+            else:
+                batch_norm = True if sampled_config['batch_norm'] == 'True' else False
+
             st.info('Training with a singe configuration.')
             config = generate_config(    
                 instance_branch_input_dim = st.session_state.data_info['instance_branch_input_dim'],
@@ -144,10 +151,10 @@ else:
                 validation_setting = st.session_state.data_info['detected_validation_setting'],
                 enable_dot_product_version = True,
                 problem_mode = st.session_state.data_info['detected_problem_mode'],
-                learning_rate = st.session_state.config['learning_rate'],
+                learning_rate = sampled_config['learning_rate'],
                 decay = 0,
-                batch_norm = st.session_state.config['batch_norm'],
-                dropout_rate = st.session_state.config['dropout_rate'],
+                batch_norm = batch_norm,
+                dropout_rate = get_default_dropout_rate() if 'dropout_rate' not in sampled_config else sampled_config['dropout_rate'],
                 momentum = 0.9,
                 weighted_loss = False,
                 compute_mode = st.session_state['selected_gpu'] if st.session_state['selected_gpu']=='cpu' else 'cuda:'+st.session_state['selected_gpu'],
@@ -175,8 +182,8 @@ else:
                 instance_branch_architecture = 'MLP',
                 use_instance_features = False,
                 instance_branch_nodes_reducing_factor = 2,
-                instance_branch_nodes_per_layer = st.session_state.config['instance_branch_nodes_per_layer'],
-                instance_branch_layers = st.session_state.config['instance_branch_layers'],
+                instance_branch_nodes_per_layer = sampled_config['instance_branch_nodes_per_layer'],
+                instance_branch_layers = sampled_config['instance_branch_layers'],
                 instance_branch_conv_architecture = 'resnet',
                 instance_branch_conv_architecture_version = 'resnet101',
                 instance_branch_conv_architecture_dense_layers = 1,
@@ -185,14 +192,14 @@ else:
                 target_branch_architecture = 'MLP',
                 use_target_features = True,
                 target_branch_nodes_reducing_factor = 2,
-                target_branch_nodes_per_layer = st.session_state.config['target_branch_nodes_per_layer'],
-                target_branch_layers = st.session_state.config['target_branch_layers'],
+                target_branch_nodes_per_layer = sampled_config['target_branch_nodes_per_layer'],
+                target_branch_layers = sampled_config['target_branch_layers'],
                 target_branch_conv_architecture = 'resnet',
                 target_branch_conv_architecture_version = 'resnet101',
                 target_branch_conv_architecture_dense_layers = 1,
                 target_branch_conv_architecture_last_layer_trained = 'last',
 
-                embedding_size = st.session_state.config['embedding_size'],
+                embedding_size = sampled_config['embedding_size'],
 
                 comb_mlp_nodes_reducing_factor = 2,
                 comb_mlp_nodes_per_layer = [2048, 2048, 2048],
