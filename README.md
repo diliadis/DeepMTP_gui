@@ -108,3 +108,15 @@ The **select gpu** page gives users the option to select the hardware that will 
 </p>
 
 This page is the last step in the typical workflow of the app. I becomes accessible only when all the previous pages have been validated (from uploading valid datasets, to selecting a GPU to train on) and the only action the user has to take is to click on the `Start training!!!` button. Once this button is selected, the training process starts and the user interface shows the progress of the experiments (plotting the train and validation loss, and showing details about metrics, early stopping status etc. in separate tables that update continuously)
+
+# Cite Us
+If you use this package, please cite [our paper](https://link.springer.com/article/10.1007/s10994-021-06104-5):
+```
+@article{iliadis2022multi,
+  title={Multi-target prediction for dummies using two-branch neural networks},
+  author={Iliadis, Dimitrios and De Baets, Bernard and Waegeman, Willem},
+  journal={Machine Learning},
+  pages={1--34},
+  year={2022},
+  publisher={Springer}
+}
