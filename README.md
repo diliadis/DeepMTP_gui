@@ -62,10 +62,10 @@ The "DeepMTP architecture page" contains basic information about the neural netw
 <p align="center">
   <img src="https://raw.githubusercontent.com/diliadis/DeepMTP_gui/main/images/gifs/load_dataset.gif" alt="animated" />
 </p>
-The "load dataset" page is the first step in the typical workflow of the app. This is the input point for the user, as they can either use one of the built-in datasets offered by the DeepMTP package, or upload their own.
+The **load dataset** page is the first step in the typical workflow of the app. This is the input point for the user, as they can either use one of the built-in datasets offered by the DeepMTP package, or upload their own.
 
 ## Use a build-in dataset
-When this option is selected, the UI shows two select boxes. The first one displays the MTP problem settings and the second the specific datasets that are available, given a MTP problem setting. The current version of the app supports the following datasets:
+When **Use a build-in dataset** is selected, the UI shows two select boxes. The first one displays the MTP problem settings and the second the specific datasets that are available, given a MTP problem setting. The current version of the app supports the following datasets:
 |  Function  | Description |
 | :--- | :--- |
 | `multi-label classification` | the user can load the multi-label classification datasets available in the [MULAN repository](http://mulan.sourceforge.net/datasets-mlc.html). |
@@ -74,29 +74,30 @@ When this option is selected, the UI shows two select boxes. The first one displ
 | `matrix completion` | the user can load the matrix completion dataset `MovieLens 100K`, a movie rating prediction dataset available by the the [GroupLens lab](https://grouplens.org/datasets/movielens/) that contains 100k ratings from 1000 users on 1700 movies. In a future version of the software larger versions of the movielens dataset will be added  |
 | `dyadic prediction` | the user can load dyadic prediction datasets available [here](https://people.montefiore.uliege.be/schrynemackers/datasets). |
 
-## I will upload my own dataset
-to be continued...
-
 # Configure the neural network
 <p align="center">
   <img src="https://raw.githubusercontent.com/diliadis/DeepMTP_gui/main/images/gifs/configure_neural_network.gif" alt="animated" />
 </p>
-The "configure neural network" page gives users the option to select the ranges of the most important hyperparameters of the underlying neural network. Every slides in the user interface contains two editable points, so the user can easily select a range or even a single value (both points collapse in the same value). At the botton of the form users can also select which metrics and averaging strategies they want to track during training.
+
+The **configure neural network** page gives users the option to select the ranges of the most important hyperparameters of the underlying neural network. Every slides in the user interface contains two editable points, so the user can easily select a range or even a single value (both points collapse in the same value). At the botton of the form users can also select which metrics and averaging strategies they want to track during training.
 
 # Select HPO method
 <p align="center">
   <img src="https://raw.githubusercontent.com/diliadis/DeepMTP_gui/main/images/gifs/select_HPO_method.gif" alt="animated" />
 </p>
-The "select HPO method" page offers different hyperparameter optimization methods. The current version supports Random Search and Hyperband. The "Random Search" option requires a single parameter (`budget`: number of randomly sampled configurations that will be tested), while Hyperband requires two hyperparameters (`max_budget`: maximum budget that is allowed, `eta`: factor of the best configurations that graduate to the next round of the Successive Halving sub-routine). If the user has selected only specific values instead of ranges in the previous page, the users selections in this page are skipped as only a single configuration exists.
+
+The **select HPO method** page offers different hyperparameter optimization methods. The current version supports `Random Search` and `Hyperband`. The `Random Search` option requires a single parameter (`budget`: number of randomly sampled configurations that will be tested), while `Hyperband` requires two hyperparameters (`max_budget`: maximum budget that is allowed, `eta`: factor of the best configurations that graduate to the next round of the Successive Halving sub-routine). If the user has selected only specific values instead of ranges in the previous page, the users selections in this page are skipped as only a single configuration exists.
 
 # Select logging tool
 <p align="center">
   <img src="https://raw.githubusercontent.com/diliadis/DeepMTP_gui/main/images/gifs/select_logging_tool.gif" alt="animated" />
 </p>
-The "select loggin tool" page enables the use of different loggin options. The current version supports two of the most popular options, [Tensorboard](https://www.tensorflow.org/tensorboard/get_started#:~:text=TensorBoard%20is%20a%20tool%20for,dimensional%20space%2C%20and%20much%20more.) and [Weights & Biases](https://wandb.ai/site). When the user selects the "Tensorboard" option, the user interface displays instructions for how they can start-up  an instance on their local browser. Alternatively, when the "Weights & Biases" option is selected, the user has to upload their personal account key, username, and the name of the project that all the experiments will be logged into. When the form is submitted, a dummy project is logged to ensure the validity of the supplied credentials (which is immediately  deleted). The upload of the user's credentials is considered safe as the DeepMTP_gui is meant to run locally and the back-end code is publicly available. 
+
+The **select loggin tool** page enables the use of different loggin options. The current version supports two of the most popular options, [Tensorboard](https://www.tensorflow.org/tensorboard) and [Weights & Biases](https://wandb.ai/site). When the user selects the `Tensorboard` option, the user interface displays instructions for how they can start-up  an instance on their local browser. Alternatively, when the `Weights & Biases` option is selected, the user has to upload their personal account key, username, and the name of the project that all the experiments will be logged into. When the form is submitted, a dummy project is logged to ensure the validity of the supplied credentials (which is immediately  deleted). The upload of the user's credentials is considered safe as the DeepMTP_gui is meant to run locally and the back-end code is publicly available. 
 
 # Select gpu
 <p align="center">
   <img src="https://raw.githubusercontent.com/diliadis/DeepMTP_gui/main/images/gifs/select_gpu.gif" alt="animated" />
 </p>
-The "select gpu" page gives users the option to select the hardware that will be used during training. This is specifically usefull when multiple GPUs are available in the system. The option to use the cpu is always available but can lead to exceedingly long runtimes, so we strongly recommend the use of a GPU.
+
+The **select gpu** page gives users the option to select the hardware that will be used during training. This is specifically usefull when multiple GPUs are available in the system. The option to use the cpu is always available but can lead to exceedingly long runtimes, so we strongly recommend the use of a GPU.
