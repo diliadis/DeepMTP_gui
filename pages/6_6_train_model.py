@@ -6,8 +6,11 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from DeepMTP.main_streamlit import DeepMTP
 from DeepMTP.utils.utils import generate_config, get_default_dropout_rate, get_default_batch_norm
-from DeepMTP.simple_hyperband_streamlit import BaseWorker
+
+from DeepMTP.hpo_worker import BaseWorker
+from DeepMTP.random_search_streamlit import RandomSearch
 from DeepMTP.simple_hyperband_streamlit import HyperBand
+
 from PIL import Image
 from utils import Capturing
 from contextlib import redirect_stdout
@@ -208,16 +211,8 @@ else:
                 save_model = True,
 
                 eval_every_n_epochs = 10,
-
                 additional_info = {}
             )
-
-            # model = DeepMTP(config)
-            # with st.spinner('training...'):
-            #     with Capturing() as output:
-            #         validation_results = model.train(st.session_state.train, st.session_state.val, st.session_state.test)
-            # st.success('Training completed!')
-            # st.write(output)
 
             st.success('Training has just started with the following config: ')
             # st.write(config)
@@ -226,11 +221,10 @@ else:
                 validation_results = model.train(st.session_state.train, st.session_state.val, st.session_state.test)
             st.success('Training completed!')
         
-        else: # hyperband will be used
+        else: # one of the HPO methods will be used
 
             config = {    
-                'hpo_results_path': './hyperband/',
-
+                # 'hpo_results_path': './hyperband/',
                 'instance_branch_input_dim': st.session_state.data_info['instance_branch_input_dim'],
                 'target_branch_input_dim': st.session_state.data_info['target_branch_input_dim'],
                 'validation_setting': st.session_state.data_info['detected_validation_setting'],
@@ -260,29 +254,50 @@ else:
                 'metric_to_optimize_best_epoch_selection': 'loss',
 
                 'instance_branch_architecture': 'MLP',
-
                 'target_branch_architecture': 'MLP',
 
                 'save_model': True,
-
                 'eval_every_n_epochs': 10,
-
-                'running_hyperband': True,
-
+                'running_hpo': True,
                 'additional_info': {'eta': st.session_state.eta, 'max_budget': st.session_state.max_budget}
             }
 
-            worker = BaseWorker(
-                st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss'
-            )
+            if st.session_state.hyperband_selected:
+                config['hpo_results_path'] = './hyperband/'
+                worker = BaseWorker(
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss'
+                )
+                hb = HyperBand(
+                    base_worker=worker,
+                    configspace=cs,
+                    eta=st.session_state.eta,
+                    max_budget=st.session_state.max_budget,
+                    direction='min',
+                )
+                
+                best_overall_config = hb.run_optimizer()
+                st.success('Hyperband completed!')
+                best_model = DeepMTP(best_overall_config.info['config'], best_overall_config.info['model_dir'])
+                best_model_results = best_model.predict(st.session_state.test, verbose=True)
+                st.write(best_model_results)
 
-            hb = HyperBand(
-                base_worker=worker,
-                configspace=cs,
-                eta=st.session_state.eta,
-                max_budget=st.session_state.max_budget,
-                direction="min",
-            )
-
-            best_overall_config = hb.run_optimizer()
-            st.success('Hyperband completed!')
+            elif st.session_state.random_search_selected:
+                config['hpo_results_path'] = './random_search/'
+                worker = BaseWorker(
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss'
+                )
+                rs = RandomSearch(
+                    base_worker=worker,
+                    configspace=cs,
+                    budget=st.session_state.random_search_budget,
+                    max_num_epochs=config['num_epochs'], 
+                    direction='min',
+                    verbose=True
+                )
+                best_overall_config = rs.run_optimizer()
+                st.success('Random Search completed!')
+                best_model = DeepMTP(best_overall_config.info['config'], best_overall_config.info['model_dir'])
+                best_model_results = best_model.predict(st.session_state.test, verbose=True)
+                st.write(best_model_results)
+            else:
+                st.error('Something went wrong. HPO method not recognized')

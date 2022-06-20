@@ -177,7 +177,7 @@ else:
 
             st.session_state.metrics_average = st.multiselect(
                 'Averaging ',
-                ['instance-wise', 'macro', 'micro'],
+                ['instance', 'macro', 'micro'],
                 default=['macro', 'micro'],
                 help='different averaging methods are offered for different validation settings',
             )

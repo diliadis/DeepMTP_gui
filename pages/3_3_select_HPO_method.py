@@ -60,6 +60,7 @@ else:
         if random_search_form_submitted:
             st.success('Random search parameters saved: (budget: '+str(st.session_state.random_search_budget)+')')
             st.session_state.random_search_selected = True
+            st.session_state.hyperband_selected = False
 
     elif hyperopt_method == 'Hyperband':
         with st.form('hyperband_form', clear_on_submit=False):
@@ -71,6 +72,7 @@ else:
         if hyperband_form_submitted:
             st.success('Hyperband parameters saved: (max_budget: '+str(st.session_state.max_budget)+', eta: '+str(st.session_state.eta)+')')
             st.session_state.hyperband_selected = True
+            st.session_state.random_search_selected = False
     
     else:
         pass
