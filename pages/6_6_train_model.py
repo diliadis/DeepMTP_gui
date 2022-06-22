@@ -15,11 +15,14 @@ from PIL import Image
 from utils import Capturing
 from contextlib import redirect_stdout
 
+general_info_placeholder = st.empty()
+no_clicking_warning_placeholder = st.empty()
+
 if 'config' not in st.session_state or st.session_state.config is None or st.session_state.selected_gpu is None:
-    st.info('You first have to load a dataset and configure the neural network architecture')
+    general_info_placeholder.info('You first have to load a dataset and configure the neural network architecture')
 
 else:    
-    st.info('Everything seems to be correctly defined. You can click the button below to start training')           
+    no_clicking_warning_placeholder.info('Everything seems to be correctly defined. You can click the button below to start training')           
     streamlit_to_deepMTP_metrics_map = {
         'accuracy': 'accuracy',
         'recall': 'recall',
@@ -35,7 +38,8 @@ else:
     }
 
     # button to start training
-    st.session_state.start_experiment_button_pressed = st.button('Start training!!!')
+    start_train_button = st.empty()
+    st.session_state.start_experiment_button_pressed = start_train_button.button('Start training!!!')
 
     if st.session_state.start_experiment_button_pressed:
 
@@ -83,7 +87,7 @@ else:
         # number of layers in the instance branch
         if isinstance(st.session_state.instance_branch_layers, tuple):
             if st.session_state.instance_branch_layers[0] != st.session_state.instance_branch_layers[1]:
-                instance_branch_layers = CSH.UniformIntegerHyperparameter('instance_branch_layers', lower=st.session_state.instance_branch_layers[0], upper=st.session_state.instance_branch_layers[1], default_value=1, log=False)
+                instance_branch_layers = CSH.UniformIntegerHyperparameter('instance_branch_layers', lower=st.session_state.instance_branch_layers[0], upper=st.session_state.instance_branch_layers[1], log=False)
             else:
                 instance_branch_layers = CSH.Constant('instance_branch_layers', value=st.session_state.instance_branch_layers[0])
         else:
@@ -101,7 +105,7 @@ else:
         # number of layers in the target branch
         if isinstance(st.session_state.target_branch_layers, tuple):
             if st.session_state.target_branch_layers[0] != st.session_state.target_branch_layers[1]:
-                target_branch_layers = CSH.UniformIntegerHyperparameter('target_branch_layers', lower=st.session_state.target_branch_layers[0], upper=st.session_state.target_branch_layers[1], default_value=1, log=False)
+                target_branch_layers = CSH.UniformIntegerHyperparameter('target_branch_layers', lower=st.session_state.target_branch_layers[0], upper=st.session_state.target_branch_layers[1], log=False)
             else:
                 target_branch_layers = CSH.Constant('target_branch_layers', value=st.session_state.target_branch_layers[0])
         else:
@@ -126,13 +130,16 @@ else:
         # st.write('target_branch_nodes_per_layer: '+str(st.session_state.config['target_branch_nodes_per_layer']))
         # st.write('target_branch_layers: '+str(st.session_state.config['target_branch_layers']))
         # st.write('embedding_size: '+str(st.session_state.config['embedding_size']))
+        if st.session_state.instance_branch_layers[0] == 1:
+            if not isinstance(instance_branch_layers, CSH.Constant):
+                cond = CS.GreaterThanCondition(dropout_rate, instance_branch_layers, 1)
+                cond3 = CS.GreaterThanCondition(batch_norm, instance_branch_layers, 1)
 
-        if not isinstance(instance_branch_layers, CSH.Constant):
-            cond = CS.GreaterThanCondition(dropout_rate, instance_branch_layers, 1)
-            cond3 = CS.GreaterThanCondition(batch_norm, instance_branch_layers, 1)
-        if not isinstance(target_branch_layers, CSH.Constant):
-            cond2 = CS.GreaterThanCondition(dropout_rate, target_branch_layers, 1)
-            cond4 = CS.GreaterThanCondition(batch_norm, target_branch_layers, 1)
+        if st.session_state.target_branch_layers[0] == 1:
+            if not isinstance(target_branch_layers, CSH.Constant):
+                cond2 = CS.GreaterThanCondition(dropout_rate, target_branch_layers, 1)
+                cond4 = CS.GreaterThanCondition(batch_norm, target_branch_layers, 1)
+
         if cond and cond2:
             cs.add_condition(CS.OrConjunction(cond, cond2))
         if cond3 and cond4:
@@ -261,43 +268,53 @@ else:
                 'running_hpo': True,
                 'additional_info': {'eta': st.session_state.eta, 'max_budget': st.session_state.max_budget}
             }
+            # currently the only supported HPO options are Random Search and Hyperband. If none of them are selected from the 'select HPO method' page, throw an error
+            if not st.session_state.hyperband_selected and not st.session_state.random_search_selected:
+                st.error('Something went wrong. HPO method not recognized')
+                st.stop()
+            else:
+                if st.session_state.hyperband_selected:
+                    config['hpo_results_path'] = './hyperband/'
+                    worker = BaseWorker(
+                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
+                    )
+                    hb = HyperBand(
+                        base_worker=worker,
+                        configspace=cs,
+                        eta=st.session_state.eta,
+                        max_budget=st.session_state.max_budget,
+                        direction='min',
+                    )
 
-            if st.session_state.hyperband_selected:
-                config['hpo_results_path'] = './hyperband/'
-                worker = BaseWorker(
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
-                )
-                hb = HyperBand(
-                    base_worker=worker,
-                    configspace=cs,
-                    eta=st.session_state.eta,
-                    max_budget=st.session_state.max_budget,
-                    direction='min',
-                )
-                
-                best_overall_config = hb.run_optimizer()
-                st.success('Hyperband completed!')
-                best_model = DeepMTP(best_overall_config.info['config'], best_overall_config.info['model_dir'])
-                best_model_results = best_model.predict(st.session_state.test, verbose=True)
-                st.write(best_model_results)
+                elif st.session_state.random_search_selected:
+                    config['hpo_results_path'] = './random_search/'
+                    worker = BaseWorker(
+                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
+                    )
+                    rs = RandomSearch(
+                        base_worker=worker,
+                        configspace=cs,
+                        budget=st.session_state.random_search_budget,
+                        max_num_epochs=config['num_epochs'], 
+                        direction='min',
+                        verbose=True
+                    )
+                # clear the button and the other info displayed in the beginning of the page
+                general_info_placeholder.empty()
+                start_train_button.empty()
+                no_clicking_warning_placeholder.empty()
 
-            elif st.session_state.random_search_selected:
-                config['hpo_results_path'] = './random_search/'
-                worker = BaseWorker(
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
-                )
-                rs = RandomSearch(
-                    base_worker=worker,
-                    configspace=cs,
-                    budget=st.session_state.random_search_budget,
-                    max_num_epochs=config['num_epochs'], 
-                    direction='min',
-                    verbose=True
-                )
+                # start_up the optimization process
                 best_overall_config = rs.run_optimizer()
                 st.success('Random Search completed!')
+                st.subheader('Best configuration: ')
+                # print the best configuration
+                st.json(best_overall_config.config.get_dictionary())
+                
+                # initialize a new model and load the pre-trained file of the best model
                 best_model = DeepMTP(best_overall_config.info['config'], best_overall_config.info['model_dir'])
+                # use the model to generate predictions on the test set and calculate the performance metrics
                 best_model_results = best_model.predict(st.session_state.test, verbose=True)
-                st.json(best_model_results)
-            else:
-                st.error('Something went wrong. HPO method not recognized')
+                # print the performance metrics
+                st.subheader('Performance metrics on the test set using the best model: ')
+                st.json(best_model_results[0]) # selects only the metrics and not the actuall predictions
