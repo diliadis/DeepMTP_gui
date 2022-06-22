@@ -3,6 +3,7 @@ from time import sleep
 import time
 import streamlit as st
 import pandas as pd
+import csv
 from DeepMTP.dataset import load_process_MLC, load_process_MTR, load_process_DP, process_dummy_MLC, process_dummy_MTR, process_dummy_DP, load_process_MC, load_process_MTL
 from DeepMTP.utils.data_utils import data_process
 from utils import Capturing
@@ -105,6 +106,25 @@ if 'X_val_target' not in st.session_state:
 if 'X_test_target' not in st.session_state:
     st.session_state.X_test_target = None
 
+if 'y_train_has_header' not in st.session_state:
+    st.session_state.y_train_has_header = None
+if 'y_val_has_header' not in st.session_state:
+    st.session_state.y_val_has_header = None
+if 'y_test_has_header' not in st.session_state:
+    st.session_state.y_test_has_header = None
+if 'X_train_instance_has_header' not in st.session_state:
+    st.session_state.X_train_instance_has_header = None
+if 'X_val_instance_has_header' not in st.session_state:
+    st.session_state.X_val_instance_has_header = None
+if 'X_test_instance_has_header' not in st.session_state:
+    st.session_state.X_test_instance_has_header = None
+if 'X_train_target_has_header' not in st.session_state:
+    st.session_state.X_train_target_has_header = None
+if 'X_val_target_has_header' not in st.session_state:
+    st.session_state.X_val_target_has_header = None
+if 'X_test_target_has_header' not in st.session_state:
+    st.session_state.X_test_target_has_header = None
+
 st.session_state.dataset_mode_option_index = st.radio(
     'Upload a dataset:',
     range(len(dataset_mode_options)),
@@ -158,18 +178,27 @@ else:
 
     with st.form("my_form"):
         st.header('Interaction data')
+        st.session_state.y_train_has_header = st.radio('train interaction file has header', [True, False], horizontal=True)
         st.session_state.y_train_file = st.file_uploader('Upload the train interaction file')
+        st.session_state.y_val_has_header = st.radio('val interaction file has header', [True, False], horizontal=True)
         st.session_state.y_val_file = st.file_uploader('Upload the val interaction file')
+        st.session_state.y_test_has_header = st.radio('test interaction file has header', [True, False], horizontal=True)
         st.session_state.y_test_file = st.file_uploader('Upload the test interaction file')
         st.write('---')
         st.header('Instance features')
+        st.session_state.X_train_instance_has_header = st.radio('train instance features file has header', [True, False], horizontal=True)
         st.session_state.X_train_instance_file = st.file_uploader('Upload the train instance features file')
+        st.session_state.X_val_instance_has_header = st.radio('val instance features file has header', [True, False], horizontal=True)
         st.session_state.X_val_instance_file = st.file_uploader('Upload the val instance features file')
+        st.session_state.X_test_instance_has_header = st.radio('test instance features file has header', [True, False], horizontal=True)
         st.session_state.X_test_instance_file = st.file_uploader('Upload the test instance features file')
         st.write('---')
         st.header('Target features')
+        st.session_state.X_train_target_has_header = st.radio('train target features file has header', [True, False], horizontal=True)
         st.session_state.X_train_target_file = st.file_uploader('Upload the train target features file')
+        st.session_state.X_val_target_has_header = st.radio('val target features file has header', [True, False], horizontal=True)
         st.session_state.X_val_target_file = st.file_uploader('Upload the val target features file')
+        st.session_state.X_test_target_has_header = st.radio('test target features file has header', [True, False], horizontal=True)
         st.session_state.X_test_target_file = st.file_uploader('Upload the test target features file')
 
         # Every form must have a submit button.
@@ -180,15 +209,45 @@ else:
             st.error('You have to at least upload the interaction data for the training set')
         else:
             with st.spinner('Loading files...'):
-                if st.session_state.y_train_file is not None: st.session_state.y_train = pd.read_csv(st.session_state.y_train_file)
-                if st.session_state.y_val_file is not None: st.session_state.y_val = pd.read_csv(st.session_state.y_val_file)
-                if st.session_state.y_test_file is not None: st.session_state.y_test = pd.read_csv(st.session_state.y_test_file)
-                if st.session_state.X_train_instance_file is not None: st.session_state.X_train_instance = pd.read_csv(st.session_state.X_train_instance_file)
-                if st.session_state.X_val_instance_file is not None: st.session_state.X_val_instance = pd.read_csv(st.session_state.X_val_instance_file)
-                if st.session_state.X_test_instance_file is not None: st.session_state.X_test_instance = pd.read_csv(st.session_state.X_test_instance_file)
-                if st.session_state.X_train_target_file is not None: st.session_state.X_train_target = pd.read_csv(st.session_state.X_train_target_file)
-                if st.session_state.X_val_target_file is not None: st.session_state.X_val_target = pd.read_csv(st.session_state.X_val_target_file)
-                if st.session_state.X_test_target_file is not None: st.session_state.X_test_target = pd.read_csv(st.session_state.X_test_target_file)
+                if st.session_state.y_train_file is not None: 
+                    st.session_state.y_train = pd.read_csv(st.session_state.y_train_file, header=st.session_state.y_train_has_header if st.session_state.y_train_has_header else None)
+                    if not st.session_state.y_train_has_header:
+                        st.session_state.y_train = st.session_state.y_train.to_numpy()
+                if st.session_state.y_val_file is not None: 
+                    st.session_state.y_val = pd.read_csv(st.session_state.y_val_file, header=st.session_state.y_val_has_header if st.session_state.y_val_has_header else None)
+                    if not st.session_state.y_val_has_header:
+                        st.session_state.y_val = st.session_state.y_val.to_numpy()
+                if st.session_state.y_test_file is not None: 
+                    st.session_state.y_test = pd.read_csv(st.session_state.y_test_file, header=st.session_state.y_test_has_header if st.session_state.y_test_has_header else None)
+                    if not st.session_state.y_test_has_header:
+                        st.session_state.y_test = st.session_state.y_test.to_numpy()
+
+                if st.session_state.X_train_instance_file is not None: 
+                    st.session_state.X_train_instance = pd.read_csv(st.session_state.X_train_instance_file, header=st.session_state.X_train_instance_has_header if st.session_state.X_train_instance_has_header else None)
+                    if not st.session_state.X_train_instance_has_header:
+                        st.session_state.X_train_instance = st.session_state.X_train_instance.to_numpy()
+                if st.session_state.X_val_instance_file is not None: 
+                    st.session_state.X_val_instance = pd.read_csv(st.session_state.X_val_instance_file, header=st.session_state.X_val_instance_has_header if st.session_state.X_val_instance_has_header else None)
+                    if not st.session_state.X_val_instance_has_header:
+                        st.session_state.X_val_instance = st.session_state.X_val_instance.to_numpy()
+                if st.session_state.X_test_instance_file is not None: 
+                    st.session_state.X_test_instance = pd.read_csv(st.session_state.X_test_instance_file, header=st.session_state.X_test_instance_has_header if st.session_state.X_test_instance_has_header else None)
+                    if not st.session_state.X_test_instance_has_header:
+                        st.session_state.X_test_instance = st.session_state.X_test_instance.to_numpy()       
+
+                if st.session_state.X_train_target_file is not None: 
+                    st.session_state.X_train_target = pd.read_csv(st.session_state.X_train_target_file, header=st.session_state.X_train_target_has_header if st.session_state.X_train_target_has_header else None)
+                    if not st.session_state.X_train_target_has_header:
+                        st.session_state.X_train_target = st.session_state.X_train_target.to_numpy()
+                if st.session_state.X_val_target_file is not None: 
+                    st.session_state.X_val_target = pd.read_csv(st.session_state.X_val_target_file, header=st.session_state.X_val_target_has_header if st.session_state.X_val_target_has_header else None)
+                    if not st.session_state.X_val_target_has_header:
+                        st.session_state.X_val_target = st.session_state.X_val_target.to_numpy()
+                if st.session_state.X_test_target_file is not None: 
+                    st.session_state.X_test_target = pd.read_csv(st.session_state.X_test_target_file, header=st.session_state.X_test_target_has_header if st.session_state.X_test_target_has_header else None)
+                    if not st.session_state.X_test_target_has_header:
+                        st.session_state.X_test_target = st.session_state.X_test_target.to_numpy()
+                            
             st.success('Done')
 
 
