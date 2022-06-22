@@ -265,7 +265,7 @@ else:
             if st.session_state.hyperband_selected:
                 config['hpo_results_path'] = './hyperband/'
                 worker = BaseWorker(
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss'
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
                 )
                 hb = HyperBand(
                     base_worker=worker,
@@ -284,7 +284,7 @@ else:
             elif st.session_state.random_search_selected:
                 config['hpo_results_path'] = './random_search/'
                 worker = BaseWorker(
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss'
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
                 )
                 rs = RandomSearch(
                     base_worker=worker,
@@ -298,6 +298,6 @@ else:
                 st.success('Random Search completed!')
                 best_model = DeepMTP(best_overall_config.info['config'], best_overall_config.info['model_dir'])
                 best_model_results = best_model.predict(st.session_state.test, verbose=True)
-                st.write(best_model_results)
+                st.json(best_model_results)
             else:
                 st.error('Something went wrong. HPO method not recognized')
