@@ -2,6 +2,7 @@ import streamlit as st
 import torch
 import GPUtil
 import time
+import plotly.graph_objects as go
 
 # @st.cache(suppress_st_warning=True, max_entries=2)
 def get_available_gpus():
@@ -23,6 +24,32 @@ def get_gpu_status_dict(deviceIDs):
         gpus_list.append({'id': str(i), 'name': gpu.name, 'load': str(int(gpu.load * 100)), 'temp': str(int(gpu.temperature))})
     return gpus_list
 
+def get_heatmap_fig(dev_id_dict):
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Heatmap(
+            z=[[i+j for i in range(100)] for j in range(100)]
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=[int(dev_id_dict[i]['load']) for i in range(len(dev_id_dict))],
+            y=[int(dev_id_dict[i]['temp']) for i in range(len(dev_id_dict))],
+            text=['GPU_'+dev_id_dict[i]['id'] for i in range(len(dev_id_dict))],
+            mode='markers+text',
+            marker=dict(size=[int(20) for i in range(len(dev_id_dict))]),
+            textfont=dict(size=20),
+        )
+    )
+
+    fig.update_layout(
+        xaxis_title='load',
+        yaxis_title='tempterature C',
+    )
+    return fig
+
 if 'selected_gpu' not in st.session_state:
     st.session_state.selected_gpu = None
 
@@ -32,11 +59,13 @@ if st.session_state.selected_gpu is None:
     if len(deviceIDs) == 0: # this option should probably default to the cpu
         st.warning('No GPUs detected. Go buy one !!! 😅')
     else:
-        for gpu_element in get_gpu_status_dict(deviceIDs):
-            col1, col2, col3 = st.columns([2,2,6])
-            col1.metric(gpu_element['id']+") "+" ".join(gpu_element['name'].split(' ')[1:]), gpu_element['temp']+"°C")
-            col2.metric('', gpu_element['load']+"%")
-            col3.write('')
+        gpus_dict = get_gpu_status_dict(deviceIDs)
+        # for gpu_element in gpus_dict:
+        #     col1, col2, col3 = st.columns([2,2,6])
+        #     col1.metric(gpu_element['id']+") "+" ".join(gpu_element['name'].split(' ')[1:]), gpu_element['temp']+"°C")
+        #     col2.metric('', gpu_element['load']+"%")
+        
+        st.plotly_chart(get_heatmap_fig(gpus_dict), use_container_width=True)
         # st.button('Refresh snapshot')
         # selected_gpu = st.radio('Select a GPU:', get_gpu_status(deviceIDs))
         selected_gpu_text = st.selectbox('Select a GPU:', get_gpu_status(deviceIDs)+['cpu'])
