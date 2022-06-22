@@ -26,10 +26,11 @@ def get_gpu_status_dict(deviceIDs):
 if 'selected_gpu' not in st.session_state:
     st.session_state.selected_gpu = None
 
+# if a gpu is already selected before, then there is not point in displaying the select box and all the other GPUs
 if st.session_state.selected_gpu is None:
     deviceIDs = get_available_gpus()
-    if len(deviceIDs) == 0:
-        st.warning('No GPUs detected. Go buy one!!!')
+    if len(deviceIDs) == 0: # this option should probably default to the cpu
+        st.warning('No GPUs detected. Go buy one !!! 😅')
     else:
         for gpu_element in get_gpu_status_dict(deviceIDs):
             col1, col2, col3, col4, col5 = st.columns(5)
@@ -47,7 +48,7 @@ if st.session_state.selected_gpu is None:
             st.success(st.session_state.selected_gpu+' will be used for training')
 else:
     st.success(st.session_state.selected_gpu+' will be used for training')
-
+    # the reset option will reset the selected GPU and will trigger a re-run so that the standard select box is displayed
     if st.button('reset selection'):
         st.session_state.selected_gpu = None
         st.experimental_rerun()
