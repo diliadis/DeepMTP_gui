@@ -1,5 +1,7 @@
 import streamlit as st
+import time
 import wandb
+
 
 if 'config' not in st.session_state or st.session_state.config is None:
     st.info('You first have to load a dataset and configure the neural network architecture')
@@ -74,7 +76,7 @@ else:
             st.write('### Weights & Biases')
             wandb_signup_page_link = 'https://wandb.ai/login?signup=true'
             st.write(
-                'Weights & Biases (Wandb) is a machine learning platform designed to help with experiment tracking, dataset versioning and model management. If you already have an account with the platform, you can input your api key and entity name, so that all the experiments can be logged to your personal project (You can also create an account [here](%s)). Otherwise, we also provide the option of logging results to the more well known Tensorboard.'
+                'Weights & Biases (Wandb) is a machine learning platform designed to help with experiment tracking, dataset versioning and model management. If you already have an account with the platform, you can input your api key and entity name, so that all the experiments can be logged to your personal project (You can also create an account for free [here](%s)). Alternatively, we also provide the option of logging results to the more well known Tensorboard.'
                 % wandb_signup_page_link
             )
 
@@ -106,11 +108,11 @@ else:
                         )
                         wandb_run.finish()
 
+                        time.sleep(2)
                         # delete the wandb run you just created
                         api=wandb.Api()
                         run = api.run(wandb_entity+'/'+wandb_project+'/'+wandb_run.id)
                         run.delete()
-
                         st.success(
                             'API key + entity combinations looks valid. Experiment results will be logged to your wandb account.'
                         )
@@ -118,14 +120,6 @@ else:
                             'https://wandb.ai/' + wandb_entity + '/' + wandb_project
                         )
 
-                        # st.success(
-                        #     'Click [here](%s) to access the Wandb project.'
-                        #     % wandb_project_page_link
-                        # )
-
-                        st.session_state['wandb_proc'] = wandb.init(
-                            entity=wandb_entity, project=wandb_project
-                        )
                         st.session_state['use_wandb'] = {
                             'entity': wandb_entity,
                             'project': wandb_project,
