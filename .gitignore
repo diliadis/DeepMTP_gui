@@ -6,6 +6,7 @@
 /wandb
 /data
 /hyperband
+/random_search
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
