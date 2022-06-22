@@ -1,6 +1,6 @@
 import streamlit as st
 
-personal_website_link = '''<a href='https://kermit.ugent.be/phd.php?author=D.%20Iliadis&year=' target='_blank'> <img src='https://raw.githubusercontent.com/diliadis/streamlit_deepMTP/master/images/ugent_favicon.png'> </a>'''
+personal_website_link = '''<a href='https://kermit.ugent.be/phd.php?author=D.%20Iliadis&year=' target='_blank'> <img src='https://raw.githubusercontent.com/diliadis/DeepMTP_gui/master/images/ugent_favicon.png'> </a>'''
 linkedin_link = '''<a href='https://gr.linkedin.com/in/dimitris-iliadis-a2bb4a113' target='_blank'> <img src='https://cdn.exclaimer.com/Handbook%20Images/linkedin-icon_32x32.png'> </a>'''
 github_link = f'''<a href='https://github.com/diliadis' target='_blank'> <img src='github_icon.png'> </a>'''
 google_colab_link = '[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fcrS_vAjjE56KUTYC4gseAW0rwKB7nMu?usp=sharing)'
