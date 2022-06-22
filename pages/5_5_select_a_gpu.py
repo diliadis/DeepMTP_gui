@@ -33,12 +33,10 @@ if st.session_state.selected_gpu is None:
         st.warning('No GPUs detected. Go buy one !!! 😅')
     else:
         for gpu_element in get_gpu_status_dict(deviceIDs):
-            col1, col2, col3, col4, col5 = st.columns(5)
+            col1, col2, col3 = st.columns([2,2,6])
             col1.metric(gpu_element['id']+") "+" ".join(gpu_element['name'].split(' ')[1:]), gpu_element['temp']+"°C")
             col2.metric('', gpu_element['load']+"%")
             col3.write('')
-            col4.write('')
-            col5.write('')
         # st.button('Refresh snapshot')
         # selected_gpu = st.radio('Select a GPU:', get_gpu_status(deviceIDs))
         selected_gpu_text = st.selectbox('Select a GPU:', get_gpu_status(deviceIDs)+['cpu'])
