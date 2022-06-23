@@ -276,14 +276,14 @@ else:
                 if st.session_state.hyperband_selected:
                     config['hpo_results_path'] = './hyperband/'
                     worker = BaseWorker(
-                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
+                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, st.session_state.hpo_metric_to_optimize+'_'+st.session_state.hpo_metric_average_to_optimize, 'streamlit'
                     )
                     opt = HyperBand(
                         base_worker=worker,
                         configspace=cs,
                         eta=st.session_state.eta,
                         max_budget=st.session_state.max_budget,
-                        direction='min',
+                        direction='max' if st.session_state.hpo_metric_to_optimize in ['accuracy', 'recall', 'precision', 'f1 score', 'AUROC', 'AUPR', 'R2',] else 'min',
                     )
 
                 elif st.session_state.random_search_selected:
@@ -296,7 +296,7 @@ else:
                         configspace=cs,
                         budget=st.session_state.random_search_budget,
                         max_num_epochs=config['num_epochs'], 
-                        direction='min',
+                        direction='max' if st.session_state.hpo_metric_to_optimize in ['accuracy', 'recall', 'precision', 'f1 score', 'AUROC', 'AUPR', 'R2',] else 'min',
                         verbose=True
                     )
                 # clear the button and the other info displayed in the beginning of the page
