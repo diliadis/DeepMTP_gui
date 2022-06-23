@@ -6,7 +6,7 @@ import pandas as pd
 import csv
 from DeepMTP.dataset import load_process_MLC, load_process_MTR, load_process_DP, process_dummy_MLC, process_dummy_MTR, process_dummy_DP, load_process_MC, load_process_MTL
 from DeepMTP.utils.data_utils import data_process
-from utils import Capturing
+from utils import Capturing, get_mtp_settings_info
 
 def reset_dataset_option_index():
     st.session_state.dataset_option_index = 0
@@ -28,10 +28,12 @@ def load_dataset(mtp_problem_setting_name, dataset_name):
 
     return data
 
+info_per_mtp_setting_per_dataset = get_mtp_settings_info()
+
 dataset_mode_options = ['Use a build-in dataset', 'I will upload my own dataset']
 
 mlc_dataset_names = ['Corel5k', 'bibtex', 'birds', 'delicious', 'emotions', 'enron', 'genbase', 'mediamill', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'rcv1subset5', 'scene', 'tmc2007_500', 'yeast']
-mtr_dataset_names = ['atp1d', 'atp7d', 'oes97', 'oes10', 'rf1', 'rf2', 'scm1d', 'scm20d', 'edm', 'sf1', 'sf2', 'jura', 'wq', 'enb', 'slump', 'andro', 'osales', 'scfp']
+mtr_dataset_names = ['atp1d', 'atp7d', 'oes97', 'oes10', 'rf1', 'rf2', 'scm1d', 'scm20d', 'edm', 'sf1', 'sf2', 'jura', 'wq', 'enb', 'slump', 'andro', 'osales', 'scpf']
 mtl_dataset_names = ['dog']
 mc_dataset_names = ['ml-100k']
 dp_dataset_names = ['srn', 'ern', 'dpie', 'dpii']
@@ -158,6 +160,10 @@ if dataset_mode_option == 'Use a build-in dataset':
         # translating the selected ids to the names of the MTP problem setting and the dataset
         selected_mtp_problem_setting_name = mtp_problem_setting_names[st.session_state.mtp_problem_setting_option_index]
         selected_dataset_name = datasets_per_mtp_problem_setting[selected_mtp_problem_setting_name][st.session_state.dataset_option_index]
+        if selected_mtp_problem_setting_name in info_per_mtp_setting_per_dataset.keys():
+            st.dataframe(info_per_mtp_setting_per_dataset[selected_mtp_problem_setting_name][info_per_mtp_setting_per_dataset[selected_mtp_problem_setting_name]['name'] == selected_dataset_name])
+
+
         if st.button('Load dataset'):
             # loading the dataset
             with st.spinner('Loading...'):
@@ -299,8 +305,6 @@ else:
         st.session_state.custom_dataset_loaded = True
 
 if (dataset_mode_option == 'Use a build-in dataset' and st.session_state.built_in_dataset_loaded == True) or (dataset_mode_option == 'I will upload my own dataset' and st.session_state.custom_dataset_loaded == True):
-
-
     if st.session_state.data is not None:
         if st.session_state.train is None and st.session_state.val is None and st.session_state.test is None:
             st.header('Preprocess data')
