@@ -278,7 +278,7 @@ else:
                     worker = BaseWorker(
                         st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
                     )
-                    hb = HyperBand(
+                    opt = HyperBand(
                         base_worker=worker,
                         configspace=cs,
                         eta=st.session_state.eta,
@@ -291,7 +291,7 @@ else:
                     worker = BaseWorker(
                         st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
                     )
-                    rs = RandomSearch(
+                    opt = RandomSearch(
                         base_worker=worker,
                         configspace=cs,
                         budget=st.session_state.random_search_budget,
@@ -305,7 +305,7 @@ else:
                 no_clicking_warning_placeholder.empty()
 
                 # start_up the optimization process
-                best_overall_config = rs.run_optimizer()
+                best_overall_config = opt.run_optimizer()
                 st.success('Random Search completed!')
                 st.subheader('Best configuration: ')
                 # print the best configuration
