@@ -18,7 +18,7 @@ from contextlib import redirect_stdout
 general_info_placeholder = st.empty()
 no_clicking_warning_placeholder = st.empty()
 
-if 'config' not in st.session_state or st.session_state.config is None or st.session_state.selected_gpu is None:
+if 'config' not in st.session_state or st.session_state.config is None or 'selected_gpu' not in st.session_state or st.session_state.selected_gpu is None:
     general_info_placeholder.info('You first have to load a dataset and configure the neural network architecture')
 
 else:    
@@ -273,10 +273,17 @@ else:
                 st.error('Something went wrong. HPO method not recognized')
                 st.stop()
             else:
+                # st.write(st.session_state.hpo_metric_to_optimize.replace(' ', '_'))
+                m_to_optimize = streamlit_to_deepMTP_metrics_map[st.session_state.hpo_metric_to_optimize] if st.session_state.hpo_metric_to_optimize != 'loss' else st.session_state.hpo_metric_to_optimize
+                m_to_optimize = m_to_optimize+'_'+st.session_state.hpo_metric_average_to_optimize if m_to_optimize != 'loss' else m_to_optimize
+                config['metric_to_optimize_early_stopping'] = m_to_optimize
+                config['metric_to_optimize_best_epoch_selection'] = m_to_optimize
+
+                st.info('Optimizing the following metric: '+str(m_to_optimize))
                 if st.session_state.hyperband_selected:
                     config['hpo_results_path'] = './hyperband/'
                     worker = BaseWorker(
-                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, st.session_state.hpo_metric_to_optimize+'_'+st.session_state.hpo_metric_average_to_optimize, 'streamlit'
+                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, m_to_optimize, 'streamlit'
                     )
                     opt = HyperBand(
                         base_worker=worker,
@@ -289,7 +296,7 @@ else:
                 elif st.session_state.random_search_selected:
                     config['hpo_results_path'] = './random_search/'
                     worker = BaseWorker(
-                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, 'loss', 'streamlit'
+                        st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info, config, m_to_optimize, 'streamlit'
                     )
                     opt = RandomSearch(
                         base_worker=worker,

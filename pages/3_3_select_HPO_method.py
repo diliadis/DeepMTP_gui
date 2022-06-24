@@ -56,9 +56,9 @@ else:
     if hyperopt_method == 'Random Search':
         with st.form('random_search_form', clear_on_submit=False):
             st.session_state.random_search_budget = st.number_input('Budget (number of different randomly sampled configurations that will be tested)', value=1)
-            st.session_state.hpo_metric_to_optimize = st.selectbox('metric used to select the best configuration', st.session_state.metrics)
+            st.session_state.hpo_metric_to_optimize = st.selectbox('metric used to select the best configuration', ['loss']+st.session_state.metrics, help='Selecting anything different than "loss" can have performance penalties as all metrics will be calculated for the validation set in every step')
             st.session_state.hpo_metric_average_to_optimize = st.selectbox('metric used to select the best configuration', st.session_state.metrics_average)
-            random_search_form_submitted = st.form_submit_button('Save parameters')
+            random_search_form_submitted = st.form_submit_button('Save Random Search parameters')
         if random_search_form_submitted:
             st.success('Random search parameters saved: (budget: '+str(st.session_state.random_search_budget)+')')
             st.session_state.random_search_selected = True
@@ -68,9 +68,9 @@ else:
         with st.form('hyperband_form', clear_on_submit=False):
             link = 'For a more detailed explanation of how the Hyperband algorithm works click [here](https://share.streamlit.io/diliadis/hyperbandcalculator/main/main.py)'
             st.markdown(link, unsafe_allow_html=True)
-            st.session_state.max_budget = st.number_input('Insert a number', min_value=1, max_value=1000, value=st.session_state.max_budget, step=1)
-            st.session_state.eta = st.number_input('Insert a number', min_value=1, max_value=10, value=st.session_state.eta, step=1)
-            st.session_state.hpo_metric_to_optimize = st.selectbox('metric used to select the best configuration', st.session_state.metrics)
+            st.session_state.max_budget = st.number_input('Insert a number', min_value=1, max_value=1000, value=int(st.session_state.max_budget), step=1)
+            st.session_state.eta = st.number_input('Insert a number', min_value=1, max_value=10, value=int(st.session_state.eta), step=1)
+            st.session_state.hpo_metric_to_optimize = st.selectbox('metric used to select the best configuration', ['loss']+st.session_state.metrics, help='Selecting anything different than "loss" can have performance penalties as all metrics will be calculated for the validation set in every step')
             st.session_state.hpo_metric_average_to_optimize = st.selectbox('metric used to select the best configuration', st.session_state.metrics_average)
             hyperband_form_submitted = st.form_submit_button('Save Hyperband parameters')
         if hyperband_form_submitted:

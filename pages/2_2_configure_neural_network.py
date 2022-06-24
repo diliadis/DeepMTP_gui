@@ -38,7 +38,7 @@ else:
         st.session_state.embedding_size = None
     if 'metrics' not in st.session_state:
         st.session_state.metrics = None
-    if 'averaging' not in st.session_state:
+    if 'metrics_average' not in st.session_state:
         st.session_state.metrics_average = None
 
     if 'config' not in st.session_state:

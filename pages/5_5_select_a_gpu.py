@@ -74,7 +74,7 @@ if st.session_state.selected_gpu is None:
             st.session_state.selected_gpu = selected_gpu_text.split(')')[0]
             st.success(st.session_state.selected_gpu+' will be used for training')
 else:
-    st.success(st.session_state.selected_gpu+' will be used for training')
+    st.success('GPU_'+st.session_state.selected_gpu+' will be used for training')
     # the reset option will reset the selected GPU and will trigger a re-run so that the standard select box is displayed
     if st.button('reset selection'):
         st.session_state.selected_gpu = None
