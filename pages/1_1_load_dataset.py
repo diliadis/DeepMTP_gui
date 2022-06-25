@@ -31,6 +31,7 @@ def load_dataset(mtp_problem_setting_name, dataset_name):
 info_per_mtp_setting_per_dataset = get_mtp_settings_info()
 
 dataset_mode_options = ['Use a build-in dataset', 'I will upload my own dataset']
+scaler_options = [None, 'Standard', 'MinMax']
 
 mlc_dataset_names = ['Corel5k', 'bibtex', 'birds', 'delicious', 'emotions', 'enron', 'genbase', 'mediamill', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'rcv1subset5', 'scene', 'tmc2007_500', 'yeast']
 mtr_dataset_names = ['atp1d', 'atp7d', 'oes97', 'oes10', 'rf1', 'rf2', 'scm1d', 'scm20d', 'edm', 'sf1', 'sf2', 'jura', 'wq', 'enb', 'slump', 'andro', 'osales', 'scpf']
@@ -59,6 +60,8 @@ if 'mtp_problem_setting_option_index' not in st.session_state:
     st.session_state.mtp_problem_setting_option_index = 0
 if 'dataset_option_index' not in st.session_state:
     st.session_state.dataset_option_index = 0
+if 'scaler_option_index' not in st.session_state:
+    st.session_state.scaler_option_index = 0
 if 'data' not in st.session_state:
     st.session_state.data = None
 if 'train' not in st.session_state:
@@ -157,12 +160,18 @@ if dataset_mode_option == 'Use a build-in dataset':
             index=st.session_state.dataset_option_index
         )
 
+        st.session_state.scaler_option_index = st.selectbox(
+            'Select a feature scaler:',
+            range(len(scaler_options)),
+            format_func=lambda x: scaler_options[x],
+            index=st.session_state.scaler_option_index
+        )
+
         # translating the selected ids to the names of the MTP problem setting and the dataset
         selected_mtp_problem_setting_name = mtp_problem_setting_names[st.session_state.mtp_problem_setting_option_index]
         selected_dataset_name = datasets_per_mtp_problem_setting[selected_mtp_problem_setting_name][st.session_state.dataset_option_index]
         if selected_mtp_problem_setting_name in info_per_mtp_setting_per_dataset.keys():
             st.dataframe(info_per_mtp_setting_per_dataset[selected_mtp_problem_setting_name][info_per_mtp_setting_per_dataset[selected_mtp_problem_setting_name]['name'] == selected_dataset_name])
-
 
         if st.button('Load dataset'):
             # loading the dataset
@@ -310,7 +319,7 @@ if (dataset_mode_option == 'Use a build-in dataset' and st.session_state.built_i
             st.header('Preprocess data')
             with st.spinner('Processing...'):
                 with Capturing() as output:
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev')
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev', scale_features=scaler_options[st.session_state.dataset_option_index])
                 for out in output:
                     if out.startswith('info:'):
                         if 'Passed' in out:
