@@ -153,8 +153,8 @@ else:
                 batch_norm = get_default_batch_norm()
             else:
                 batch_norm = True if sampled_config['batch_norm'] == 'True' else False
-
-            st.info('Training with a singe configuration.')
+            
+            st.info('Training with a singe configuration: ')
             config = generate_config(    
                 instance_branch_input_dim = st.session_state.data_info['instance_branch_input_dim'],
                 target_branch_input_dim = st.session_state.data_info['target_branch_input_dim'],
