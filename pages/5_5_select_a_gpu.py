@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 
 # @st.cache(suppress_st_warning=True, max_entries=2)
 def get_available_gpus():
-    return GPUtil.getAvailable(order = 'first', limit = 10, maxLoad = 1, maxMemory = 1, includeNan=False, excludeID=[], excludeUUID=[])
+    return GPUtil.getAvailable(order = 'first', limit = 10, maxLoad = 100, maxMemory = 100, includeNan=False, excludeID=[], excludeUUID=[])
 
 def get_gpu_status(deviceIDs):
     gpus_list = []
@@ -57,7 +57,7 @@ if 'selected_gpu' not in st.session_state:
 if st.session_state.selected_gpu is None:
     deviceIDs = get_available_gpus()
     if len(deviceIDs) == 0: # this option should probably default to the cpu
-        st.warning('No GPUs detected. Go buy one !!! 😅')
+        st.warning('No GPUs detected. Please buy one !!! 😅')
     else:
         gpus_dict = get_gpu_status_dict(deviceIDs)
         # for gpu_element in gpus_dict:
