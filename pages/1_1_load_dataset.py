@@ -319,7 +319,7 @@ if (dataset_mode_option == 'Use a build-in dataset' and st.session_state.built_i
             st.header('Preprocess data')
             with st.spinner('Processing...'):
                 with Capturing() as output:
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev', scale_features=scaler_options[st.session_state.dataset_option_index])
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev', scale_features=scaler_options[st.session_state.scaler_option_index])
                 for out in output:
                     if out.startswith('info:'):
                         if 'Passed' in out:
