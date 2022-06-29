@@ -71,72 +71,82 @@ else:
         #             st.info('No tensorboard process is currently active.')
 
     else:
-        with st.form(key='wandb_form'):
+        if st.session_state['use_wandb'] is None:
 
-            st.write('### Weights & Biases')
-            wandb_signup_page_link = 'https://wandb.ai/login?signup=true'
-            st.write(
-                'Weights & Biases (Wandb) is a machine learning platform designed to help with experiment tracking, dataset versioning and model management. If you already have an account with the platform, you can input your api key and entity name, so that all the experiments can be logged to your personal project (You can also create an account for free [here](%s)). Alternatively, we also provide the option of logging results to the more well known Tensorboard.'
-                % wandb_signup_page_link
-            )
+            with st.form(key='wandb_form'):
 
-            # this is just a demo...
-            wandb_API_key = st.text_input(
-                'API key',
-                help='Sets the authentication key associated with your account.',
-                type='password',
-            )
-            wandb_api_key_link = 'Check your API key [here](https://wandb.ai/authorize)'
-            st.markdown(wandb_api_key_link, unsafe_allow_html=True)
-            wandb_entity = st.text_input(
-                'entity',
-                help='The entity associated with your run. Usually this is the same as your wandb username',
-            )
-            wandb_project = st.text_input(
-                'project', value='test', help='The project associated with your run.'
-            )
+                st.write('### Weights & Biases')
+                wandb_signup_page_link = 'https://wandb.ai/login?signup=true'
+                st.write(
+                    'Weights & Biases (Wandb) is a machine learning platform designed to help with experiment tracking, dataset versioning and model management. If you already have an account with the platform, you can input your api key and entity name, so that all the experiments can be logged to your personal project (You can also create an account for free [here](%s)). Alternatively, we also provide the option of logging results to the more well known Tensorboard.'
+                    % wandb_signup_page_link
+                )
 
-            wandb_form_submitted = st.form_submit_button('test connection')
-            if wandb_form_submitted:
-                try:
-                    with st.spinner(
-                        'Trying to log a dummy experiment using the supplied info....'
-                    ):
-                        wandb.login(key=wandb_API_key)
-                        wandb_run = wandb.init(
-                            entity=wandb_entity, project=wandb_project
+                # this is just a demo...
+                wandb_API_key = st.text_input(
+                    'API key',
+                    help='Sets the authentication key associated with your account.',
+                    type='password',
+                )
+                wandb_api_key_link = 'Check your API key [here](https://wandb.ai/authorize)'
+                st.markdown(wandb_api_key_link, unsafe_allow_html=True)
+                wandb_entity = st.text_input(
+                    'entity',
+                    help='The entity associated with your run. Usually this is the same as your wandb username',
+                )
+                wandb_project = st.text_input(
+                    'project', value='test', help='The project associated with your run.'
+                )
+
+                wandb_form_submitted = st.form_submit_button('test connection')
+                if wandb_form_submitted:
+                    try:
+                        with st.spinner(
+                            'Trying to log a dummy experiment using the supplied info....'
+                        ):
+                            wandb.login(key=wandb_API_key)
+                            wandb_run = wandb.init(
+                                entity=wandb_entity, project=wandb_project
+                            )
+                            wandb_run.finish()
+
+                            time.sleep(2)
+                            # delete the wandb run you just created
+                            api=wandb.Api()
+                            run = api.run(wandb_entity+'/'+wandb_project+'/'+wandb_run.id)
+                            run.delete()
+                            st.success(
+                                'API key + entity combinations looks valid. Experiment results will be logged to your wandb account.'
+                            )
+                            wandb_project_page_link = (
+                                'https://wandb.ai/' + wandb_entity + '/' + wandb_project
+                            )
+
+                            st.session_state['use_wandb'] = {
+                                'entity': wandb_entity,
+                                'project': wandb_project,
+                                'api_key': wandb_API_key,
+                            }
+                            st.info('A test experiment was logged as a test to check if the credentials are valid. The experiment was automatically deleted but may still be visible in Weights & Biases for a few more minutes')
+                    except ValueError:
+                        st.error(
+                            'API key must be 40 characters long, yours was '
+                            + str(len(wandb_API_key))
                         )
-                        wandb_run.finish()
+                        st.session_state['use_wandb'] = None
+                        pass
+                    except Exception as e:
+                        st.error('API KEY OR ENTITY ARE WRONG. TRY AGAIN')
+                        st.session_state['use_wandb'] = None
+                        pass
 
-                        time.sleep(2)
-                        # delete the wandb run you just created
-                        api=wandb.Api()
-                        run = api.run(wandb_entity+'/'+wandb_project+'/'+wandb_run.id)
-                        run.delete()
-                        st.success(
-                            'API key + entity combinations looks valid. Experiment results will be logged to your wandb account.'
-                        )
-                        wandb_project_page_link = (
-                            'https://wandb.ai/' + wandb_entity + '/' + wandb_project
-                        )
+            if st.session_state['use_wandb'] is not None:
+                st.success('Click [here](%s) to access the Wandb project.' % wandb_project_page_link)
+        
+        else:
+            if st.session_state['use_wandb'] is not None:
+                st.success('Your wandb credentials have already been validated. Click [here](%s) to access the Wandb project.' % wandb_project_page_link)
 
-                        st.session_state['use_wandb'] = {
-                            'entity': wandb_entity,
-                            'project': wandb_project,
-                            'api_key': wandb_API_key,
-                        }
-                        st.info('A test experiment was logged as a test to check if the credentials are valid. The experiment was automatically deleted but may still be visible in Weights & Biases for a few more minutes')
-                except ValueError:
-                    st.error(
-                        'API key must be 40 characters long, yours was '
-                        + str(len(wandb_API_key))
-                    )
-                    st.session_state['use_wandb'] = None
-                    pass
-                except Exception as e:
-                    st.error('API KEY OR ENTITY ARE WRONG. TRY AGAIN')
-                    st.session_state['use_wandb'] = None
-                    pass
-
-        if st.session_state['use_wandb'] is not None:
-            st.success('Click [here](%s) to access the Wandb project.' % wandb_project_page_link)
+            if st.button('Reset wandb login credentials'):
+                st.session_state['use_wandb'] = None
+                st.experimental_rerun()
