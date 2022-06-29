@@ -60,8 +60,10 @@ if 'mtp_problem_setting_option_index' not in st.session_state:
     st.session_state.mtp_problem_setting_option_index = 0
 if 'dataset_option_index' not in st.session_state:
     st.session_state.dataset_option_index = 0
-if 'scaler_option_index' not in st.session_state:
-    st.session_state.scaler_option_index = 0
+if 'instance_scaler_option_index' not in st.session_state:
+    st.session_state.instance_scaler_option_index = 0
+if 'target_scaler_option_index' not in st.session_state:
+    st.session_state.target_scaler_option_index = 0
 if 'data' not in st.session_state:
     st.session_state.data = None
 if 'train' not in st.session_state:
@@ -160,11 +162,21 @@ if dataset_mode_option == 'Use a build-in dataset':
             index=st.session_state.dataset_option_index
         )
 
-        st.session_state.scaler_option_index = st.selectbox(
-            'Select a feature scaler:',
+        # instance features scaler selectbox
+        st.session_state.instance_scaler_option_index = st.selectbox(
+            'Select an instance feature scaler:',
             range(len(scaler_options)),
             format_func=lambda x: scaler_options[x],
-            index=st.session_state.scaler_option_index
+            index=st.session_state.instance_scaler_option_index,
+            help='If no instance features are available, this selection will be ignored'
+        )
+        # target features scaler selectbox
+        st.session_state.target_scaler_option_index = st.selectbox(
+            'Select a target feature scaler:',
+            range(len(scaler_options)),
+            format_func=lambda x: scaler_options[x],
+            index=st.session_state.target_scaler_option_index,
+            help='If no target features are available, this selection will be ignored'
         )
 
         # translating the selected ids to the names of the MTP problem setting and the dataset
@@ -319,7 +331,7 @@ if (dataset_mode_option == 'Use a build-in dataset' and st.session_state.built_i
             st.header('Preprocess data')
             with st.spinner('Processing...'):
                 with Capturing() as output:
-                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev', scale_features=scaler_options[st.session_state.scaler_option_index])
+                    st.session_state.train, st.session_state.val, st.session_state.test, st.session_state.data_info = data_process(st.session_state.data, validation_setting='B', verbose=True, print_mode='dev', scale_instance_features=scaler_options[st.session_state.instance_scaler_option_index], scale_target_features=scaler_options[st.session_state.target_scaler_option_index])
                 for out in output:
                     if out.startswith('info:'):
                         if 'Passed' in out:
