@@ -33,7 +33,6 @@ if "config" not in st.session_state or st.session_state.config is None:
     )
 
 else:
-    print(str(st.session_state.hyperopt_method_index))
     hyperopt_methods = ["Hyperband", "Random Search"]
     if "hyperopt_method_index" not in st.session_state:
         st.session_state.hyperopt_method_index = 0
@@ -47,6 +46,9 @@ else:
         st.session_state.random_search_budget = 1
     if "random_search_selected" not in st.session_state:
         st.session_state.random_search_selected = False
+
+    hyperband_form_submitted = False
+    random_search_form_submitted = False
 
     st.write("## Hyperparameter Optimization")
     st.session_state.hyperopt_method_index = st.selectbox(
@@ -128,3 +130,19 @@ else:
 
     else:
         pass
+
+    if not hyperband_form_submitted and not random_search_form_submitted:
+        if st.session_state.hyperband_selected:
+            st.success(
+                "Hyperband parameters saved: (max_budget: "
+                + str(st.session_state.max_budget)
+                + ", eta: "
+                + str(st.session_state.eta)
+                + ")"
+            )
+        elif st.session_state.random_search_selected:
+            st.success(
+                "Random search parameters saved: (budget: "
+                + str(st.session_state.random_search_budget)
+                + ")"
+            )
