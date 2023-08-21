@@ -296,7 +296,9 @@ else:
                 train_batchsize=512,
                 val_batchsize=512,
                 num_epochs=st.session_state.config["epochs"],
-                num_workers=8,
+                num_workers=st.session_state["selected_num_workers"]
+                if st.session_state["selected_num_workers"] is not None
+                else 4,
                 # metrics = ['hamming_loss', 'auroc', 'f1_score', 'aupr', 'accuracy', 'recall', 'precision'],
                 # metrics_average = ['macro', 'micro'],
                 metrics=[
@@ -385,7 +387,9 @@ else:
                 "train_batchsize": 512,
                 "val_batchsize": 512,
                 "num_epochs": st.session_state.config["epochs"],
-                "num_workers": 8,
+                "num_workers": st.session_state["selected_num_workers"]
+                if st.session_state["selected_num_workers"] is not None
+                else 4,
                 "metrics": [
                     streamlit_to_deepMTP_metrics_map[streamlit_metric]
                     for streamlit_metric in st.session_state.config["metrics"]

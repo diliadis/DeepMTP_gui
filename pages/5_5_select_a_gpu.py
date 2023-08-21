@@ -69,6 +69,9 @@ def get_heatmap_fig(dev_id_dict):
 if "selected_gpu" not in st.session_state:
     st.session_state.selected_gpu = None
 
+if "selected_num_workers" not in st.session_state:
+    st.session_state.selected_num_workers = None
+
 
 if "config" not in st.session_state or st.session_state.config is None:
     st.info(
@@ -79,7 +82,7 @@ else:
     if st.session_state.selected_gpu is None:
         deviceIDs = get_available_gpus()
         if len(deviceIDs) == 0:  # this option should probably default to the cpu
-            st.warning("No GPUs detected. Please buy one !!! 😅")
+            st.warning("No GPUs detected. Please consider buying one !!! 😅")
         else:
             gpus_dict = get_gpu_status_dict(deviceIDs)
             # for gpu_element in gpus_dict:
@@ -94,14 +97,58 @@ else:
                 "Select a GPU:", get_gpu_status(deviceIDs) + ["cpu"]
             )
 
+            selected_num_workers = st.number_input(
+                "Select number of workers used by the dataloaders",
+                min_value=0,
+                max_value=10,
+                value=4,
+                step=1,
+            )
+            with st.expander("Meaning of the 'num_workers' parameter?"):
+                st.markdown(
+                    """
+                    # Explanation of `num_workers` in PyTorch
+
+                    In PyTorch, particularly when using the `DataLoader` class for loading datasets, the `num_workers` parameter defines the number of subprocesses to use for data loading.
+
+                    - **`num_workers=0`** (default): 
+                        - The main process loads the data in the same process. 
+                        - Data loading is synchronous and can be slower.
+                        
+                    - **`num_workers > 0`**: 
+                        - Data loading is offloaded to multiple worker processes.
+                        - Allows for asynchronous data loading for faster performance.
+
+                    ### Benefits of setting `num_workers` > 0:
+
+                    1. **Speed**: Faster data loading with large datasets or intensive transformations.
+                    2. **Utilization**: Utilizes multiple cores of modern CPUs.
+
+                    ### Considerations:
+
+                    1. **Memory**: More workers might consume additional memory.
+                    2. **I/O Bottlenecks**: The number of workers might not always linearly speed up data loading due to disk I/O limitations.
+                    3. **Thread Safety**: Ensure the dataset access is thread-safe.
+
+                    For best results, experiment with different `num_workers` values to find an optimal balance between speed and resource usage.
+                """
+                )
+
             if st.button("Save GPU selection"):
                 st.session_state.selected_gpu = selected_gpu_text.split(")")[0]
+                st.session_state.selected_num_workers = selected_num_workers
                 st.success(st.session_state.selected_gpu + " will be used for training")
     else:
         st.success(
             "GPU_" + st.session_state.selected_gpu + " will be used for training"
         )
+        st.success(
+            "The dataloaders will use "
+            + st.session_state.selected_num_workers
+            + " workers"
+        )
         # the reset option will reset the selected GPU and will trigger a re-run so that the standard select box is displayed
         if st.button("reset selection"):
             st.session_state.selected_gpu = None
+            st.session_state.selected_num_workers = None
             st.experimental_rerun()
