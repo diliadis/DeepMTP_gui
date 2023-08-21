@@ -144,7 +144,7 @@ else:
         )
         st.success(
             "The dataloaders will use "
-            + st.session_state.selected_num_workers
+            + str(st.session_state.selected_num_workers)
             + " workers"
         )
         # the reset option will reset the selected GPU and will trigger a re-run so that the standard select box is displayed
